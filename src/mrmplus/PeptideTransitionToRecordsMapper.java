@@ -18,15 +18,15 @@ public class PeptideTransitionToRecordsMapper {
         HashMap<String, LinkedList<PeptideRecord>> transitionToRecords = new HashMap<String, LinkedList<PeptideRecord>>();
         
         for(PeptideRecord peptideRecord : peptideRecords){
-            String fragmentIon = peptideRecord.getFragmentIon();
-            if(transitionToRecords.containsKey(fragmentIon)){
-                LinkedList<PeptideRecord> mappedRecords = transitionToRecords.remove(fragmentIon);
+            String transition = peptideRecord.getTransition();
+            if(transitionToRecords.containsKey(transition)){
+                LinkedList<PeptideRecord> mappedRecords = transitionToRecords.remove(transition);
                 mappedRecords.add(peptideRecord);
-                transitionToRecords.put(fragmentIon, mappedRecords);
+                transitionToRecords.put(transition, mappedRecords);
             }else{
                 LinkedList<PeptideRecord> mappedRecords = new LinkedList<PeptideRecord>();
                 mappedRecords.add(peptideRecord);
-                transitionToRecords.put(fragmentIon, mappedRecords);
+                transitionToRecords.put(transition, mappedRecords);
             }
         }       
         return transitionToRecords;        

@@ -14,11 +14,11 @@ import mrmplus.PeptideRecord;
  */
 public class ExperimentReplicateToRecordsMapper {
 
-    public HashMap<String, LinkedList<PeptideRecord>> mapReplicatesToRecords(LinkedList<PeptideRecord> transitionRecords) {
+    public HashMap<String, LinkedList<PeptideRecord>> mapReplicatesToRecords(LinkedList<PeptideRecord> peptideRecords) {
         
         HashMap<String, LinkedList<PeptideRecord>> replicate2Records = new HashMap<String, LinkedList<PeptideRecord>>();
         
-        for(PeptideRecord peptideRecord : transitionRecords){
+        for(PeptideRecord peptideRecord : peptideRecords){
             String replicate = peptideRecord.getReplicate();
             if(replicate.equalsIgnoreCase("NA")==false){
                 if(replicate2Records.containsKey(replicate)){

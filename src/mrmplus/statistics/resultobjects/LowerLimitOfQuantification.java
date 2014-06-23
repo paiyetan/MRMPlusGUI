@@ -15,6 +15,8 @@ public class LowerLimitOfQuantification {
     private double blankOnly;
     private double blankPlusLowConc;
     private double rsdLimit;
+    
+    private CoefficientOfVariation coefficientOfVariation;
 
     public LowerLimitOfQuantification(String transitionID, double blankOnly, double blankPlusLowConc, double rsdLimit) {
         this.transitionID = transitionID;
@@ -23,6 +25,15 @@ public class LowerLimitOfQuantification {
         this.rsdLimit = rsdLimit;
     }
 
+    public LowerLimitOfQuantification(String transitionID, CoefficientOfVariation coefficientOfVariation) {
+        this.transitionID = transitionID;
+        this.coefficientOfVariation = coefficientOfVariation;
+    }
+
+    public CoefficientOfVariation getCoefficientOfVariation() {
+        return coefficientOfVariation;
+    }
+    
     public double getBlankOnly() {
         return blankOnly;
     }

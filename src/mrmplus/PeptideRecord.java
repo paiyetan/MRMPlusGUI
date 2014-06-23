@@ -88,8 +88,14 @@ public class PeptideRecord {
         setPeakAreaRatio();
     }
 
-    public String getFragmentIon() {
+    public String getFragmentIon() { // getTransition
+                                // a transition is unique by a combination of the actual fragment and its associated charge state...
         return FragmentIon;
+    }
+    
+    public String getTransition(){
+        String transition = this.PrecursorCharge + "." + this.FragmentIon + "." + this.ProductCharge;
+        return transition;
     }
 
     public String getPeptideSequence() {
