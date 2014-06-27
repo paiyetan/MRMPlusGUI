@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideResult;
+import mrmplus.statistics.resultobjects.CoefficientOfVariation;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
+import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
 
 /**
  *
@@ -50,15 +52,20 @@ public class QCEstimatesPrinter {
         //Limit of Detection.
         if(config.get("computeLOD").equalsIgnoreCase("TRUE")){
             // locally defined values...
-            printer.print("\t" + "average");
-            printer.print("\t" + "standardDeviation");
-            printer.print("\t" + "limitOfDetectionValue");
-            printer.print("\t" + "usedMinSpikedInConcentration");
-            printer.print("\t" + "zeroFlagged");
+            //printer.print("\t" + "LOD.transitionID");
+            printer.print("\t" + "LOD.average");
+            printer.print("\t" + "LOD.stDeviation");
+            printer.print("\t" + "LOD.value");
+            printer.print("\t" + "LOD.usedMinSpiked");
+            printer.print("\t" + "LOD.zeroFlagged");
         }
         //Lower Limit of Quantitation.
         if(config.get("computeLLOQ").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
+            //printer.print("\t" + "LLOQ.transitionID");
+            printer.print("\t" + "LLOQ.CaliPoint");
+            printer.print("\t" + "LLOQ.Coefficient");
+            printer.print("\t" + "LLOQ.MeanValue");
+            printer.print("\t" + "LLOQ.StDeviation");
         }
         
         //Fit Curve...
@@ -91,66 +98,77 @@ public class QCEstimatesPrinter {
     }
 
     private void printPeptideRowResult(PeptideResult peptideResult, PrintWriter printer, HashMap<String, String> config) {
-        
-         printer.print(peptideResult.getPeptideSequence() + "\t" + 
-                       peptideResult.getTransitionID());
-        // ************************ //
-        // *** Defaults to TRUE ***
-        // ************************ //
-        //Limit of Detection.
-        if(config.get("computeLOD").equalsIgnoreCase("TRUE")){
-            
-            LimitOfDetection lod = peptideResult.getLimitOfDetection();
-            
-            //for(LimitOfDetection lod : lods){
-                // based off configuration file options...
-               
-        
-                
-                // locally defined values...
-                //printer.print("\t" + lod.getTransitionID()); // "transition type"
+        String peptideSequence = peptideResult.getPeptideSequence();
+        try{ 
+            printer.print(peptideSequence + "\t" + 
+                        peptideResult.getTransitionID());
+            // ************************ //
+            // *** Defaults to TRUE ***
+            // ************************ //
+            //Limit of Detection.
+            if(config.get("computeLOD").equalsIgnoreCase("TRUE")){
+
+                LimitOfDetection lod = peptideResult.getLimitOfDetection();
+
                 printer.print("\t" + lod.getAverage()); // "average");
                 printer.print("\t" + lod.getStandardDeviation()); //"standardDeviation");
                 printer.print("\t" + lod.getLimitOfDetection()); //"limitOfDetectionValue");
                 printer.print("\t" + lod.usedMinSpikedInConcentration()); //"usedMinSpikedInConcentration");
                 printer.print("\t" + lod.isZeroValueFlagged()); //"zeroFlagged");
-            //}
-        }
-        //Lower Limit of Quantitation.
-        if(config.get("computeLLOQ").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
-        }
+
+            }
+            //Lower Limit of Quantitation.
+            if(config.get("computeLLOQ").equalsIgnoreCase("TRUE")){
+                LowerLimitOfQuantification lloq = peptideResult.getLowerLimitOfQuantification();
+                CoefficientOfVariation coef = lloq.getCoefficientOfVariation();
+                if(coef != null){
+                    printer.print("\t" + coef.getCalibrationPoint()); // "LLOQ.CaliPoint");
+                    printer.print("\t" + coef.getCoef()); //"LLOQ.Coefficient");
+                    printer.print("\t" + coef.getMean()); //"LLOQ.MeanValue");
+                    printer.print("\t" + coef.getSd()); //"LLOQ.StDeviation");
+                } else {
+                    printer.print("\tNA"); // "LLOQ.CaliPoint");
+                    printer.print("\tNA"); //"LLOQ.Coefficient");
+                    printer.print("\tNA"); //"LLOQ.MeanValue");
+                    printer.print("\tNA"); //"LLOQ.StDeviation");
+                }
+
+            }
+
+            //Fit Curve...
+            if(config.get("fitCurve").equalsIgnoreCase("TRUE")){
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+
+            // ************************* //
+            // *** Defaults to FALSE ***
+            // ************************* //
+            //Estimate Upper Limit of Quantitation.
+            if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
+                throw new UnsupportedOperationException("Not yet implemented");           
+            }
+
+            //Estimate Linearity.
+            if(config.get("computeLinearity").equalsIgnoreCase("TRUE")){
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+            //Estimate Carry-Over.
+            if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+            //Partially validate Specificity.
+            if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+
+            printer.print("\n");
         
-        //Fit Curve...
-        if(config.get("fitCurve").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
+        }catch(Exception ex){
+            System.out.println(peptideSequence);
+            ex.printStackTrace();
         }
-        
-        // ************************* //
-        // *** Defaults to FALSE ***
-        // ************************* //
-        //Estimate Upper Limit of Quantitation.
-        if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
-             throw new UnsupportedOperationException("Not yet implemented");           
-        }
-        
-        //Estimate Linearity.
-        if(config.get("computeLinearity").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
-        }
-        //Estimate Carry-Over.
-        if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
-        }
-        //Partially validate Specificity.
-        if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
-        }
-        
-        printer.print("\n");
-        
-        
         
     }
+        
     
 }

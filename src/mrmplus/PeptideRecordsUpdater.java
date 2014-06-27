@@ -41,6 +41,7 @@ public class PeptideRecordsUpdater {
                                 replicateName + "' of peptide '" + peptideRecord.getPeptideSequence() + "'");
             }
         }
+        logWriter.println(" Peptide records metadata info updated...'");
     }
 
     public void updatePeptideRecordsDilutions(LinkedList<PeptideRecord> peptideRecords, 
@@ -53,14 +54,15 @@ public class PeptideRecordsUpdater {
                 double dilution = pointToDilutionMap.get(calibrationPoint);
                 //update peptide records' dilution
                 peptideRecord.setDilution(dilution);
-            } else {
+            } 
+            /*else {
                 logWriter.println(" No dilution mapping found for peptide '" + peptideRecord.getPeptideSequence() + 
                                           "' calibration point '" + calibrationPoint);
             }
-            
+            * 
+            */            
         }
-    }
-    
-    
+        logWriter.println(" Peptide records dilution info updated...'");
+    }    
     
 }

@@ -15,6 +15,7 @@ import mrmplus.PeptideResult;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.estimators.*;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
+import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
 
 
 /**
@@ -91,6 +92,9 @@ public class PeptideQCEstimator {
                 // get instantiated object [place holder for derived results]
                 // the number of derived PeptideResult objects is dependent user specofied
                 // peptideResulsOutputted option;
+                System.out.println("  Estimating Limit of Detection(s) for peptide " + peptideSequence);
+                logWriter.println("  Estimating Limit of Detection(s) for peptide "+ peptideSequence);
+            
                 LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);
                 // get associated PeptideRecords...
                 LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
@@ -136,7 +140,7 @@ public class PeptideQCEstimator {
                         peptideResults.add(peptideResult);
                     }
                 }else{
-                    if(peptideResults.size()!=lods.size()){ // estimated lods size should be equivalent to peptide sequence ass
+                    if(peptideResults.size()!=lods.size()){ // estimated lods size should be equivalent to peptide sequence associated peptideResult linkedList size
                         try{
                             throw new Exception(); 
                         }catch(Exception ex){
@@ -161,6 +165,8 @@ public class PeptideQCEstimator {
             }
         }
         //Lower Limit of Quantitation.
+        System.out.println();
+        logWriter.println();
         
         if(config.get("computeLLOQ").equalsIgnoreCase("TRUE")){
             System.out.println(" Estimating Lower Limit of Quantitation(s)...");
@@ -169,26 +175,51 @@ public class PeptideQCEstimator {
             PeptideLLOQEstimator lLOQEstimator = new PeptideLLOQEstimator();
             // for each of the peptide sequence
             for(String peptideSequence : peptideSequences){
+                System.out.println("  Estimating Limit of Detection(s) for peptide " + peptideSequence);
+                logWriter.println("  Estimating Limit of Detection(s) for peptide "+ peptideSequence);
+                
                 // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);
                 // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
-                
-                
-                // determine peptidesResultsOutputted
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); 
+                LinkedList<LowerLimitOfQuantification> lloqs = null;
+                // determine user specified peptidesResultsOutputted type
                 if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
                     // compute summed...
-                    
+                    lloqs = lLOQEstimator.estimateLLOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.SUMMED, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);                  
                 } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
                     // compute for each transitions
-                    
+                    lloqs = lLOQEstimator.estimateLLOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.TRANSITIONS, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);   
                 } else { //BOTH
                     // compute for both summed and transitions...
+                    lloqs = lLOQEstimator.estimateLLOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.BOTH, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);  
+                } 
+                logWriter.println("   " + lloqs.size() + " LLOQs estimated associated with peptide '" + peptideSequence);
+                // set LLOQ(s) for peptide...[in each associated peptide result object...
+                // peptideResults
+                for(PeptideResult peptideResult : peptideResults){
+                    String transitionID = peptideResult.getTransitionID();
+                    //find peptideResult with same transitionID
+                    for(int i = 0; i < lloqs.size(); i++){
+                        if(transitionID.equalsIgnoreCase(lloqs.get(i).getTransitionID())){
+                            peptideResult.setLowerLimitOfQuantification(lloqs.get(i));
+                        }
+                    }
                 }
-                
-                //set LLOQ(s) for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
+                //remove and re-insert peptideToPeptideResult mapping...
+                peptideQCEstimates.put(peptideSequence, peptideResults);
             }
             
         }

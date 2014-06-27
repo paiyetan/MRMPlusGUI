@@ -87,6 +87,37 @@ public class PeptideRecord {
         
         setPeakAreaRatio();
     }
+    
+    public PeptideRecord(String PeptideSequence, 
+                            String ReplicateName, 
+                            int PrecursorCharge, 
+                            int ProductCharge, 
+                            String FragmentIon, 
+                            double lightPrecursorMz, 
+                            double lightProductMz, 
+                            double lightRetentionTime, 
+                            double lightArea, 
+                            double heavyPrecursorMz, 
+                            double heavyProductMz, 
+                            double heavyRetentionTime, 
+                            double heavyArea,
+                            double dilution) {
+        this.PeptideSequence = PeptideSequence;
+        this.ReplicateName = ReplicateName;
+        this.PrecursorCharge = PrecursorCharge;
+        this.ProductCharge = ProductCharge;
+        this.FragmentIon = FragmentIon;
+        this.lightPrecursorMz = lightPrecursorMz;
+        this.lightProductMz = lightProductMz;
+        this.lightRetentionTime = lightRetentionTime;
+        this.lightArea = lightArea;
+        this.heavyPrecursorMz = heavyPrecursorMz;
+        this.heavyProductMz = heavyProductMz;
+        this.heavyRetentionTime = heavyRetentionTime;
+        this.heavyArea = heavyArea;
+        
+        setPeakAreaRatio();
+    }
 
     public String getFragmentIon() { // getTransition
                                 // a transition is unique by a combination of the actual fragment and its associated charge state...

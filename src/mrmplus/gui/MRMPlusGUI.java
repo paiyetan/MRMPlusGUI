@@ -11,7 +11,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -257,7 +260,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
 
@@ -393,13 +396,12 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
         jLabel20.setText("jLabel20");
 
         jDialog2.setMinimumSize(new java.awt.Dimension(458, 340));
-        jDialog2.setPreferredSize(new java.awt.Dimension(458, 340));
 
         jPanel9.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel9.setMinimumSize(new java.awt.Dimension(438, 320));
@@ -913,12 +915,12 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             @Override
             public  void propertyChange(PropertyChangeEvent evt) {               
                 if ("progress".equals(evt.getPropertyName())) {
-                    //if((Integer)evt.getNewValue() == 0){
-                     //   jProgressBar1.setIndeterminate(true);
-                    //}else{
-                    //    jProgressBar1.setIndeterminate(false);
+                    if((Integer)evt.getNewValue() == 0){
+                       jProgressBar1.setIndeterminate(true);
+                    }else{
+                        jProgressBar1.setIndeterminate(false);
                         jProgressBar1.setValue((Integer)evt.getNewValue());
-                    //}
+                    }
                     if((Integer)evt.getNewValue() == 100){
                         System.out.println("\n...Done!!!");
                         //jTextArea1.append("\n...Done!!!");
@@ -1206,6 +1208,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             logWriter.println("Estimating MRMPlus QCs...");
             publish("Estimating MRMPlus QCs...");
             PeptideQCEstimator qcEstimator = new PeptideQCEstimator();
+            setProgress(0);
             HashMap<String, LinkedList<PeptideResult>> peptideQCEstimates = 
                     qcEstimator.estimatePeptidesQCs(pepToRecordsMap, pointToDilutionMap, configFile, logWriter);
             setProgress(75);
@@ -1226,11 +1229,20 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
             Date end_time = new Date();
             long end = end_time.getTime();
+            // for logger...
             logWriter.println("End: " + end + ": " + end_time.toString());
             logWriter.println("Total time: " + (end - start_time) + " milliseconds; " + 
                             TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
                             + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
+            // for GUI...
+            publish("End: " + end + ": " + end_time.toString());
+            publish("Total time: " + (end - start_time) + " milliseconds; " + 
+                            TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
+                            + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
+            
+            
 
             logWriter.close();
             setProgress(100);

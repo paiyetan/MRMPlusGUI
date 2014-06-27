@@ -50,6 +50,7 @@ public class PeptideResult {
         this.curveFits = curveFits;
     }
 
+    /*
     public void setLimitsOfDetections(LinkedList<LimitOfDetection> limitsOfDetections) {
         this.limitsOfDetections = limitsOfDetections;
     }
@@ -57,6 +58,8 @@ public class PeptideResult {
     public void setLowerLimitsOfQuantifications(LinkedList<LowerLimitOfQuantification> lowerLimitsOfQuantifications) {
         this.lowerLimitsOfQuantifications = lowerLimitsOfQuantifications;
     }
+    * 
+    */
     
     public String getPeptideSequence() {
         return peptideSequence;
@@ -70,13 +73,16 @@ public class PeptideResult {
         return curveFits;
     }
 
-    public LinkedList<LimitOfDetection> getLimitsOfDetections() {
+    /*
+     public LinkedList<LimitOfDetection> getLimitsOfDetections() {
         return limitsOfDetections;
     }
 
     public LinkedList<LowerLimitOfQuantification> getLowerLimitsOfQuantifications() {
         return lowerLimitsOfQuantifications;
     }
+    * 
+    */
 
     public LinkedList<PeptideRecord> getMappedRecords() {
         return mappedRecords;
