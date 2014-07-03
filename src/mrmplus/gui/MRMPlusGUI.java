@@ -91,7 +91,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             
             jComboBox1.setSelectedItem(this.config.get("computeLOD").toUpperCase());//LOD
             jComboBox2.setSelectedItem(this.config.get("computeLLOQ").toUpperCase());//LLoQ
-            jComboBox3.setSelectedItem(this.config.get("fitCurve").toUpperCase());//FitCurve
+            //jComboBox3.setSelectedItem(this.config.get("fitCurve").toUpperCase());//FitCurve
             jComboBox4.setSelectedItem(this.config.get("computeLinearity").toUpperCase());//Linearity
             jComboBox5.setSelectedItem(this.config.get("computeCarryOver").toUpperCase());//CarryOver
             jComboBox6.setSelectedItem(this.config.get("computePartialValidationOfSpecificity").toUpperCase());//Specificity
@@ -115,7 +115,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         config.put("serialDilutions", jTextField10.getText());
         config.put("computeLOD", (String) jComboBox1.getSelectedItem());
         config.put("computeLLOQ", (String) jComboBox2.getSelectedItem());
-        config.put("fitCurve", (String) jComboBox3.getSelectedItem());
+        //config.put("fitCurve", (String) jComboBox3.getSelectedItem());
         config.put("computeLinearity", (String) jComboBox4.getSelectedItem());
         config.put("computeCarryOver", (String) jComboBox5.getSelectedItem());
         config.put("computePartialValidationOfSpecificity", (String) jComboBox6.getSelectedItem());
@@ -144,7 +144,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         jPanel7 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -153,7 +152,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         jLabel19 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
         jComboBox2 = new javax.swing.JComboBox();
-        jComboBox3 = new javax.swing.JComboBox();
         jComboBox4 = new javax.swing.JComboBox();
         jComboBox5 = new javax.swing.JComboBox();
         jComboBox6 = new javax.swing.JComboBox();
@@ -237,9 +235,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         jLabel12.setText("Compute LLOQ:");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
-        jLabel13.setText("Fit Curve:");
-
         jLabel14.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         jLabel14.setText("Compute Linearity:");
 
@@ -260,11 +255,9 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
-
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
 
         jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
 
@@ -285,7 +278,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel16, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -295,8 +287,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jComboBox3, 0, 103, Short.MAX_VALUE)
-                        .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBox2, 0, 103, Short.MAX_VALUE)
                         .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jComboBox4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -307,6 +298,9 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                         .addComponent(jComboBox6, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(168, 168, 168))
         );
+
+        jPanel7Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jComboBox1, jComboBox2, jComboBox4, jComboBox5, jComboBox6, jComboBox7, jComboBox8, jComboBox9});
+
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
@@ -318,10 +312,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel14)
@@ -346,7 +336,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
                     .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
 
         jPanel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -1017,7 +1007,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JComboBox jComboBox5;
     private javax.swing.JComboBox jComboBox6;
@@ -1030,7 +1019,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;

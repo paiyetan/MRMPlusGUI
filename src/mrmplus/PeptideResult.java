@@ -6,7 +6,7 @@ package mrmplus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import mrmplus.statistics.resultobjects.CurveFit;
+import mrmplus.statistics.resultobjects.Linearity;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
 import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
 
@@ -23,15 +23,16 @@ public class PeptideResult {
     private HashMap<String, String> config;
     
     //outputs...
-    private LinkedList<CurveFit> curveFits;
-    private LinkedList<LimitOfDetection> limitsOfDetections;
-    private LinkedList<LowerLimitOfQuantification> lowerLimitsOfQuantifications;
+    private LinkedList<Linearity> curveFits;
+    //private LinkedList<LimitOfDetection> limitsOfDetections;
+    //private LinkedList<LowerLimitOfQuantification> lowerLimitsOfQuantifications;
         
     //Updated outputs
     private String transitionID;
-    private CurveFit curveFit;
+    private Linearity linearity;
     private LimitOfDetection limitOfDetection;
     private LowerLimitOfQuantification lowerLimitOfQuantification;
+    
                
     public PeptideResult(String peptideSequence, 
                     LinkedList<PeptideRecord> mappedRecords,
@@ -44,10 +45,6 @@ public class PeptideResult {
     
     public PeptideResult(String peptideSequence){
         this.peptideSequence = peptideSequence;
-    }
-
-    public void setCurveFits(LinkedList<CurveFit> curveFits) {
-        this.curveFits = curveFits;
     }
 
     /*
@@ -69,10 +66,10 @@ public class PeptideResult {
         return config;
     }
 
-    public LinkedList<CurveFit> getCurveFits() {
-        return curveFits;
+    public String getTransitionID() {
+        return transitionID;
     }
-
+    
     /*
      public LinkedList<LimitOfDetection> getLimitsOfDetections() {
         return limitsOfDetections;
@@ -92,10 +89,7 @@ public class PeptideResult {
         this.transitionID = transitionID;
     }
 
-    public void setCurveFit(CurveFit curveFit) {
-        this.curveFit = curveFit;
-    }
-
+    
     public void setLimitOfDetection(LimitOfDetection limitOfDetection) {
         this.limitOfDetection = limitOfDetection;
     }
@@ -104,10 +98,10 @@ public class PeptideResult {
         this.lowerLimitOfQuantification = lowerLimitOfQuantification;
     }
 
-    public CurveFit getCurveFit() {
-        return curveFit;
+    public void setLinearity(Linearity peptideLinearity) {
+        this.linearity = peptideLinearity;
     }
-
+        
     public LimitOfDetection getLimitOfDetection() {
         return limitOfDetection;
     }
@@ -116,10 +110,12 @@ public class PeptideResult {
         return lowerLimitOfQuantification;
     }
 
-    public String getTransitionID() {
-        return transitionID;
+    public Linearity getLinearity() {
+        return linearity;
     }
+
     
+
     
     
     

@@ -15,6 +15,7 @@ import mrmplus.PeptideResult;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.estimators.*;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
+import mrmplus.statistics.resultobjects.Linearity;
 import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
 
 
@@ -65,7 +66,7 @@ public class PeptideQCEstimator {
             serialDilutions=7
             computeLOD=TRUE
             computeLLOQ=TRUE
-            computeLinearity=FALSE
+            estimateLinearity=FALSE
             computeCarryOver=FALSE
             computePartialValidationOfSpecificity=FALSE
             computeULOQ=TRUE
@@ -178,13 +179,10 @@ public class PeptideQCEstimator {
                 System.out.println("  Estimating Limit of Detection(s) for peptide " + peptideSequence);
                 logWriter.println("  Estimating Limit of Detection(s) for peptide "+ peptideSequence);
                 
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); 
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);// get instantiated PeptideResult object [place holder for derived results]
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); // get associated PeptideRecords...
                 LinkedList<LowerLimitOfQuantification> lloqs = null;
-                // determine user specified peptidesResultsOutputted type
-                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
+                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){ // determine user specified peptidesResultsOutputted type
                     // compute summed...
                     lloqs = lLOQEstimator.estimateLLOQ(sequenceMappedPeptideRecords, 
                                                             PeptideResultOutputType.SUMMED, 
@@ -224,35 +222,61 @@ public class PeptideQCEstimator {
             
         }
         
-        //Fit Curve...
-        if(config.get("fitCurve").equalsIgnoreCase("TRUE")){
-            System.out.println(" Fitting Curve(s)...");
-            logWriter.println(" Fitting Curve(s)...");
+        //Estimate Linearity, similar or equivalent to fitting the curve...
+        System.out.println();
+        logWriter.println();
+        
+        if(config.get("computeLinearity").equalsIgnoreCase("TRUE")){
+            System.out.println(" Estimating Linearity...");
+            logWriter.println(" Estimating Linearity...");
             
-            PeptideResponseCurveFitter curveFitter = new PeptideResponseCurveFitter();
+            PeptideLinearityEstimator lEstimator = new PeptideLinearityEstimator();
             
             // for each of the peptide sequence
             for(String peptideSequence : peptideSequences){
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
+                System.out.println("  Estimating Linearity(ies) for peptide " + peptideSequence);
+                logWriter.println("  Estimating Linearity(ies) for peptide "+ peptideSequence);
                 
-                
-                // determine peptidesResultsOutputted
-                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);// get instantiated PeptideResult object [place holder for derived results]
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); // get associated PeptideRecords...
+                LinkedList<Linearity> linearities = null;
+                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){ // determine peptidesResultsOutputted
                     // compute summed...
-                    
+                    linearities = lEstimator.estimateLinearity(sequenceMappedPeptideRecords, 
+                                                                PeptideResultOutputType.SUMMED, 
+                                                                    pointToDilutionMap, 
+                                                                        config, 
+                                                                            logWriter);                  
                 } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
                     // compute for each transitions
-                    
-                } else {
+                    linearities = lEstimator.estimateLinearity(sequenceMappedPeptideRecords, 
+                                                                PeptideResultOutputType.TRANSITIONS, 
+                                                                    pointToDilutionMap, 
+                                                                        config, 
+                                                                            logWriter);   
+                } else { //BOTH
                     // compute for both summed and transitions...
+                    linearities = lEstimator.estimateLinearity(sequenceMappedPeptideRecords, 
+                                                                PeptideResultOutputType.BOTH, 
+                                                                    pointToDilutionMap, 
+                                                                        config, 
+                                                                            logWriter);  
+                } 
+                
+                logWriter.println("   " + linearities.size() + " Linearities estimated associated with peptide '" + peptideSequence);
+                // set LLOQ(s) for peptide...[in each associated peptide result object...
+                // peptideResults
+                for(PeptideResult peptideResult : peptideResults){
+                    String transitionID = peptideResult.getTransitionID();
+                    //find peptideResult with same transitionID
+                    for(int i = 0; i < linearities.size(); i++){
+                        if(transitionID.equalsIgnoreCase(linearities.get(i).getTransitionID())){
+                            peptideResult.setLinearity(linearities.get(i));
+                        }
+                    }
                 }
-                
-                //set CurveFit for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
+                //remove and re-insert peptideToPeptideResult mapping...
+                peptideQCEstimates.put(peptideSequence, peptideResults);
             }
         }
         
@@ -292,37 +316,7 @@ public class PeptideQCEstimator {
             
         }
         
-        //Estimate Linearity.
-        if(config.get("computeLinearity").equalsIgnoreCase("TRUE")){
-            System.out.println(" Computing Linearity...");
-            logWriter.println(" Computing Linearity...");
-            
-            PeptideLinearityEstimator lEstimator = new PeptideLinearityEstimator();
-            
-            // for each of the peptide sequence
-            for(String peptideSequence : peptideSequences){
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
-                
-                
-                // determine peptidesResultsOutputted
-                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
-                    // compute summed...
-                    
-                } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
-                    // compute for each transitions
-                    
-                } else {
-                    // compute for both summed and transitions...
-                }
-                
-                //set Linearity(s) for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
-            }
-        }
+        
         //Estimate Carry-Over.
         if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
             System.out.println(" Computing carry-over...");
