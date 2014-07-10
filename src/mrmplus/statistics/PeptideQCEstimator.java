@@ -14,6 +14,7 @@ import mrmplus.PeptideRecord;
 import mrmplus.PeptideResult;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.estimators.*;
+import mrmplus.statistics.resultobjects.CarryOver;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
 import mrmplus.statistics.resultobjects.Linearity;
 import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
@@ -318,35 +319,67 @@ public class PeptideQCEstimator {
         
         
         //Estimate Carry-Over.
+        /*
+         * peak area of analyte peptide in blank after the highest concentration
+         * divided by peak area in high concentration sample and expressed as percent;
+         * three blanks, one after each high concentration are averaged.
+         * 
+         */
         if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
             System.out.println(" Computing carry-over...");
             logWriter.println(" Computing carry-over...");
             
             PeptideCarryOverEstimator cOEstimator = new PeptideCarryOverEstimator();
+            //System.out.println(" Estimating Lower Limit of Quantitation(s)...");
+            //logWriter.println(" Estimating Lower Limit of Quantitation(s)...");
             
+            //PeptideLLOQEstimator lLOQEstimator = new PeptideLLOQEstimator();
+            // for each of the peptide sequence
             // for each of the peptide sequence
             for(String peptideSequence : peptideSequences){
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
+                System.out.println("  Computing carry-over for peptide " + peptideSequence);
+                logWriter.println("  Computing carry-over for peptide "+ peptideSequence);
                 
-                
-                // determine peptidesResultsOutputted
-                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);// get instantiated PeptideResult object [place holder for derived results]
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); // get associated PeptideRecords...
+                LinkedList<CarryOver> carryOvers = null;
+                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){ // determine user specified peptidesResultsOutputted type
                     // compute summed...
-                    
+                    carryOvers = cOEstimator.estimateCarryOver(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.SUMMED, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);                  
                 } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
                     // compute for each transitions
-                    
-                } else {
+                    carryOvers = cOEstimator.estimateCarryOver(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.TRANSITIONS, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);   
+                } else { //BOTH
                     // compute for both summed and transitions...
+                    carryOvers = cOEstimator.estimateCarryOver(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.BOTH, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter);  
+                } 
+                logWriter.println("   " + carryOvers.size() + " CarryOver objects associated with peptide '" + peptideSequence);
+                // set LLOQ(s) for peptide...[in each associated peptide result object...
+                // peptideResults
+                for(PeptideResult peptideResult : peptideResults){
+                    String transitionID = peptideResult.getTransitionID();
+                    //find peptideResult with same transitionID
+                    for(int i = 0; i < carryOvers.size(); i++){
+                        if(transitionID.equalsIgnoreCase(carryOvers.get(i).getTransitionID())){
+                            peptideResult.setCarryOver(carryOvers.get(i));
+                        }
+                    }
                 }
-                
-                //set CarryOver(s) for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
-            }
+                //remove and re-insert peptideToPeptideResult mapping...
+                peptideQCEstimates.put(peptideSequence, peptideResults);
+            }          
         }
         //Partially validate Specificity.
         if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){

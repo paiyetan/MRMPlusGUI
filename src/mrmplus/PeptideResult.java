@@ -6,6 +6,7 @@ package mrmplus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import mrmplus.statistics.resultobjects.CarryOver;
 import mrmplus.statistics.resultobjects.Linearity;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
 import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
@@ -23,16 +24,14 @@ public class PeptideResult {
     private HashMap<String, String> config;
     
     //outputs...
-    private LinkedList<Linearity> curveFits;
-    //private LinkedList<LimitOfDetection> limitsOfDetections;
-    //private LinkedList<LowerLimitOfQuantification> lowerLimitsOfQuantifications;
+    //private LinkedList<Linearity> curveFits;
         
     //Updated outputs
     private String transitionID;
-    private Linearity linearity;
     private LimitOfDetection limitOfDetection;
     private LowerLimitOfQuantification lowerLimitOfQuantification;
-    
+    private Linearity linearity;
+    private CarryOver carryOver;
                
     public PeptideResult(String peptideSequence, 
                     LinkedList<PeptideRecord> mappedRecords,
@@ -70,17 +69,6 @@ public class PeptideResult {
         return transitionID;
     }
     
-    /*
-     public LinkedList<LimitOfDetection> getLimitsOfDetections() {
-        return limitsOfDetections;
-    }
-
-    public LinkedList<LowerLimitOfQuantification> getLowerLimitsOfQuantifications() {
-        return lowerLimitsOfQuantifications;
-    }
-    * 
-    */
-
     public LinkedList<PeptideRecord> getMappedRecords() {
         return mappedRecords;
     }
@@ -101,6 +89,10 @@ public class PeptideResult {
     public void setLinearity(Linearity peptideLinearity) {
         this.linearity = peptideLinearity;
     }
+    
+    public void setCarryOver(CarryOver carryOver) {
+        this.carryOver = carryOver;
+    }
         
     public LimitOfDetection getLimitOfDetection() {
         return limitOfDetection;
@@ -114,6 +106,12 @@ public class PeptideResult {
         return linearity;
     }
 
+    public CarryOver getCarryOver() {
+        return carryOver;
+    }
+
+    
+    
     
 
     

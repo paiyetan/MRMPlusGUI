@@ -259,7 +259,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
 
         jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
 

@@ -270,8 +270,9 @@
             <Component class="javax.swing.JComboBox" name="jComboBox5">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="1">
+                  <StringArray count="2">
                     <StringItem index="0" value="FALSE"/>
+                    <StringItem index="1" value="TRUE"/>
                   </StringArray>
                 </Property>
               </Properties>

@@ -11,10 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideResult;
-import mrmplus.statistics.resultobjects.CoefficientOfVariation;
-import mrmplus.statistics.resultobjects.LimitOfDetection;
-import mrmplus.statistics.resultobjects.Linearity;
-import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
+import mrmplus.statistics.resultobjects.*;
 
 /**
  *
@@ -93,7 +90,11 @@ public class QCEstimatesPrinter {
         
         // Carry-Over.
         if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
+            //throw new UnsupportedOperationException("Not yet implemented");
+            printer.print("\t" + "CarryOver.maxPeakArea");
+            printer.print("\t" + "CarryOver.postMaxPeakArea");
+            printer.print("\t" + "CarryOver.carryOver(%)");
+            
         }
         // Partially validate Specificity.
         if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
@@ -165,7 +166,11 @@ public class QCEstimatesPrinter {
 
             // Carry-Over.
             if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
-                throw new UnsupportedOperationException("Not yet implemented");
+                //throw new UnsupportedOperationException("Not yet implemented");
+                CarryOver carryOver = peptideResult.getCarryOver();
+                printer.print("\t" + carryOver.getMaxConcPointPeakArea()); // "Curve.Diff(%)"
+                printer.print("\t" + carryOver.getPostMaxBlankPeakArea()); // "Curve.SlopeStdErr"
+                printer.print("\t" + carryOver.getCarryOverValue()); // "Curve.SlopeStdErr(%)"
             }
             // Partially validate Specificity.
             if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
