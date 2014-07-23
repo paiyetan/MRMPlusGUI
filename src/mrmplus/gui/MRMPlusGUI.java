@@ -261,9 +261,9 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
         jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
 
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
+        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
 
-        jComboBox7.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE" }));
+        jComboBox7.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
 
         jComboBox8.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "TRANSITIONS", "SUM" }));
 
@@ -845,7 +845,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // Select preprocessed file...
-        OneFileChooser chooser = new OneFileChooser("Select preprocessed file...");
+        OneFileChooser chooser = new OneFileChooser("Select preprocessed file...", currentDir);
         if(chooser.getInputFile() != null){
             String input = chooser.getInputFile();
             jTextField1.setText(input);
@@ -855,7 +855,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // Select metadata file...
-        OneFileChooser chooser = new OneFileChooser("Select metadata file...");
+        OneFileChooser chooser = new OneFileChooser("Select metadata file...", currentDir);
         if(chooser.getInputFile() != null){
             String input = chooser.getInputFile();
             jTextField2.setText(input);
@@ -865,7 +865,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // Select dilution file...
-        OneFileChooser chooser = new OneFileChooser("Select dilution file...");
+        OneFileChooser chooser = new OneFileChooser("Select dilution file...", currentDir);
         if(chooser.getInputFile() != null){
             String input = chooser.getInputFile();
             jTextField3.setText(input);
@@ -875,7 +875,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // Select output(s) location...
-        OutputDirChooser chooser = new OutputDirChooser("Select output(s) location...");
+        OutputDirChooser chooser = new OutputDirChooser("Select output(s) location...", currentDir);
         if(chooser.getOutputDir() != null){
             String output = chooser.getOutputDir();
             jTextField4.setText(output);
@@ -884,47 +884,51 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // "Execute" button
-        // set configuration(s) [from user specified values]
-        setUserConfigurations();
-        // Initiate SwingWorker 
-        // run program...
-        // set JProgressBar bound values....
-        jProgressBar1.setMinimum(0);
-        jProgressBar1.setMaximum(100);
-        jButton14.setEnabled(false);
-        // instantiate xGlycScan object
-        MRMPlus mrmplus = null;
-        try {
-            mrmplus = new MRMPlus(jTextArea1, config);
-        } catch (Exception ex) {
-            Logger.getLogger(MRMPlus.class.getName()).log(Level.SEVERE, null, ex);
+        
+        try{
+            // "Execute" button
+            // set configuration(s) [from user specified values]
+            setUserConfigurations();
+            // Initiate SwingWorker 
+            // run program...
+            // set JProgressBar bound values....
+            jProgressBar1.setMinimum(0);
+            jProgressBar1.setMaximum(100);
+            jButton14.setEnabled(false);
+            // instantiate xGlycScan object
+            MRMPlus mrmplus = null;
+            try {
+                mrmplus = new MRMPlus(jTextArea1, config);
+            } catch (Exception ex) {
+                Logger.getLogger(MRMPlus.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
+            } 
+            mrmplus.addPropertyChangeListener(new PropertyChangeListener(){
+                @Override
+                public  void propertyChange(PropertyChangeEvent evt) {               
+                    if ("progress".equals(evt.getPropertyName())) {
+                        if((Integer)evt.getNewValue() == 0){
+                        jProgressBar1.setIndeterminate(true);
+                        }else{
+                            jProgressBar1.setIndeterminate(false);
+                            jProgressBar1.setValue((Integer)evt.getNewValue());
+                        }
+                        if((Integer)evt.getNewValue() == 100){
+                            System.out.println("\n...Done!!!");
+                            //jTextArea1.append("\n...Done!!!");
+                            JOptionPane.showMessageDialog(jDialog2, "...Complete!", "Complete!", JOptionPane.OK_OPTION);            
+                            jButton14.setEnabled(true);
+
+                        }
+
+                    }            
+                }
+            });
+            mrmplus.execute();
+            jDialog2.setVisible(true);            
+        } catch(Exception ex){
             ex.printStackTrace();
-        } 
-        mrmplus.addPropertyChangeListener(new PropertyChangeListener(){
-            @Override
-            public  void propertyChange(PropertyChangeEvent evt) {               
-                if ("progress".equals(evt.getPropertyName())) {
-                    if((Integer)evt.getNewValue() == 0){
-                       jProgressBar1.setIndeterminate(true);
-                    }else{
-                        jProgressBar1.setIndeterminate(false);
-                        jProgressBar1.setValue((Integer)evt.getNewValue());
-                    }
-                    if((Integer)evt.getNewValue() == 100){
-                        System.out.println("\n...Done!!!");
-                        //jTextArea1.append("\n...Done!!!");
-                        JOptionPane.showMessageDialog(jDialog2, "...Complete!", "Complete!", JOptionPane.OK_OPTION);            
-                        jButton14.setEnabled(true);
-                        
-                    }
-                    
-                }            
-            }
-        });
-        mrmplus.execute();
-        jDialog2.setVisible(true);            
-           
+        }   
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
@@ -1061,7 +1065,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
     // Specified variables
     private HashMap<String, String> config; //configuration file...
-    private String currentDir; //current directory tracker... 
+    private String currentDir = System.getProperty("user.dir"); //current directory tracker... 
 
     
 
@@ -1116,127 +1120,130 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         
         @Override
         protected Void doInBackground() throws Exception {
-            //throw new UnsupportedOperationException("Not supported yet.");
-            setProgress(5);
-            LinkedList<PeptideRecord> peptideRecords;
-            HashMap<String, LinkedList<PeptideRecord>> pepToRecordsMap;
-            
-            long start_time = new Date().getTime();
-            //instantiate a loggerFile
-            String logFile = "./logs" + File.separator + start_time + ".log"; 
-            //File loggerFile = new File(logFile);
-            PrintWriter logWriter = new PrintWriter(logFile);
+            try{
+                setProgress(5);
+                LinkedList<PeptideRecord> peptideRecords;
+                HashMap<String, LinkedList<PeptideRecord>> pepToRecordsMap;
 
-            //read inputFile...
-            System.out.println("Reading 'skyline' preprocessed data input file...");
-            logWriter.println("Reading 'skyline' preprocessed data input file...");
-            publish("Reading 'skyline' preprocessed data input file...");
-            InputFileReader inFileReader = new InputFileReader();
-            String inputFile = configFile.get("preprocessedFile"); //can be alternative derived 
-            peptideRecords = inFileReader.readInputFile(inputFile, configFile, logWriter);
-            //setProgress(2);
+                long start_time = new Date().getTime();
+                //instantiate a loggerFile
+                String logFile = "./logs" + File.separator + start_time + ".log"; 
+                //File loggerFile = new File(logFile);
+                PrintWriter logWriter = new PrintWriter(logFile);
 
-            //associate metadata-info with peptide records
-            // Get associated information - metadata...
-            System.out.println("Reading metadata file...");
-            logWriter.println("Reading metadata file...");
-            publish("Reading metadata file...");
-            String metadataFile = configFile.get("metadataFile");
-            MetadataFileReader metadataFileReader = new MetadataFileReader();
-            LinkedList<MRMRunMeta> metadata = metadataFileReader.readFile(metadataFile, logWriter);
-            
+                //read inputFile...
+                System.out.println("Reading 'skyline' preprocessed data input file...");
+                logWriter.println("Reading 'skyline' preprocessed data input file...");
+                publish("Reading 'skyline' preprocessed data input file...");
+                InputFileReader inFileReader = new InputFileReader();
+                String inputFile = configFile.get("preprocessedFile"); //can be alternative derived 
+                peptideRecords = inFileReader.readInputFile(inputFile, configFile, logWriter);
+                //setProgress(2);
 
-            // map replicate name to meta-info; the replicate name is used in this case because it is unique and could
-            // be used to associate metadata to peptide record as we'll use subsequently...
-            System.out.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
-            logWriter.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
-            publish("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
-            ExperimentMetadataMapper metadatamapper = new ExperimentMetadataMapper();
-            HashMap<String, MRMRunMeta> replicateNameToMetadataMap = 
-                    metadatamapper.mapReplicateNameToMetadata(metadata);
-            logWriter.println("  " + replicateNameToMetadataMap.keySet().size() + " MRMRunMeta objects found in metadata file...");
-            setProgress(10);
-            //publish();
-            
-            // update peptideRecords with metadata info...
-            System.out.println("Updating peptide records...");
-            logWriter.println("Updating peptide records...");
-            publish("Updating peptide records...");
-            PeptideRecordsUpdater updater = new PeptideRecordsUpdater();
-            updater.updatePeptideRecords(peptideRecords, replicateNameToMetadataMap, logWriter);
-            setProgress(15);
-
-            // get associated [spikedIn] serial dilution concentration...
-            System.out.println("Reading dilution file...");
-            logWriter.println("Reading dilution file...");
-            publish("Reading dilution file...");
-            String dilutionFile = configFile.get("dilutionFile");
-            DilutionFileReader dilFileReader = new DilutionFileReader();
-            HashMap<String, Double> pointToDilutionMap = dilFileReader.readFile(dilutionFile, logWriter);
-            setProgress(20);
-
-            // update respective peptideRecord with associated point dilution
-            System.out.println("Updating peptide records...");
-            logWriter.println("Updating peptide records...");
-            publish("Updating peptide records...");
-            updater.updatePeptideRecordsDilutions(peptideRecords, pointToDilutionMap, logWriter);
-            setProgress(30);
+                //associate metadata-info with peptide records
+                // Get associated information - metadata...
+                System.out.println("Reading metadata file...");
+                logWriter.println("Reading metadata file...");
+                publish("Reading metadata file...");
+                String metadataFile = configFile.get("metadataFile");
+                MetadataFileReader metadataFileReader = new MetadataFileReader();
+                LinkedList<MRMRunMeta> metadata = metadataFileReader.readFile(metadataFile, logWriter);
 
 
-            //map peptides to records...
-            System.out.println("Mapping peptide sequence to peptide record...");
-            logWriter.println("Mapping peptide sequence to peptide record...");
-            publish("Mapping peptide sequence to peptide record...");
-            PeptideToRecordsMapper mapper = new PeptideToRecordsMapper();
-            pepToRecordsMap = mapper.mapPeptideToRecord(peptideRecords);
-            setProgress(40);
+                // map replicate name to meta-info; the replicate name is used in this case because it is unique and could
+                // be used to associate metadata to peptide record as we'll use subsequently...
+                System.out.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
+                logWriter.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
+                publish("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
+                ExperimentMetadataMapper metadatamapper = new ExperimentMetadataMapper();
+                HashMap<String, MRMRunMeta> replicateNameToMetadataMap = 
+                        metadatamapper.mapReplicateNameToMetadata(metadata);
+                logWriter.println("  " + replicateNameToMetadataMap.keySet().size() + " MRMRunMeta objects found in metadata file...");
+                setProgress(10);
+                //publish();
 
-            //compute statistics results...
-            System.out.println("Estimating MRMPlus QCs...");
-            logWriter.println("Estimating MRMPlus QCs...");
-            publish("Estimating MRMPlus QCs...");
-            PeptideQCEstimator qcEstimator = new PeptideQCEstimator();
-            setProgress(0);
-            HashMap<String, LinkedList<PeptideResult>> peptideQCEstimates = 
-                    qcEstimator.estimatePeptidesQCs(pepToRecordsMap, pointToDilutionMap, configFile, logWriter);
-            setProgress(75);
+                // update peptideRecords with metadata info...
+                System.out.println("Updating peptide records...");
+                logWriter.println("Updating peptide records...");
+                publish("Updating peptide records...");
+                PeptideRecordsUpdater updater = new PeptideRecordsUpdater();
+                updater.updatePeptideRecords(peptideRecords, replicateNameToMetadataMap, logWriter);
+                setProgress(15);
 
-            //Print results
-            System.out.println("Printing MRMPlus QC estimates...");
-            logWriter.println("Printing MRMPlus QC estimates...");
-            publish("Printing MRMPlus QC estimates...");
-            QCEstimatesPrinter printer = new QCEstimatesPrinter();
-            printer.printMRMPlusEstimates(peptideQCEstimates, configFile);
-            setProgress(90);
+                // get associated [spikedIn] serial dilution concentration...
+                System.out.println("Reading dilution file...");
+                logWriter.println("Reading dilution file...");
+                publish("Reading dilution file...");
+                String dilutionFile = configFile.get("dilutionFile");
+                DilutionFileReader dilFileReader = new DilutionFileReader();
+                HashMap<String, Double> pointToDilutionMap = dilFileReader.readFile(dilutionFile, logWriter);
+                setProgress(20);
+
+                // update respective peptideRecord with associated point dilution
+                System.out.println("Updating peptide records...");
+                logWriter.println("Updating peptide records...");
+                publish("Updating peptide records...");
+                updater.updatePeptideRecordsDilutions(peptideRecords, pointToDilutionMap, logWriter);
+                setProgress(30);
 
 
-            System.out.println("...Done!!!");
-            logWriter.println("...Done!!!");
-            publish("...Done!!!");
-           
+                //map peptides to records...
+                System.out.println("Mapping peptide sequence to peptide record...");
+                logWriter.println("Mapping peptide sequence to peptide record...");
+                publish("Mapping peptide sequence to peptide record...");
+                PeptideToRecordsMapper mapper = new PeptideToRecordsMapper();
+                pepToRecordsMap = mapper.mapPeptideToRecord(peptideRecords);
+                setProgress(40);
 
-            Date end_time = new Date();
-            long end = end_time.getTime();
-            // for logger...
-            logWriter.println("End: " + end + ": " + end_time.toString());
-            logWriter.println("Total time: " + (end - start_time) + " milliseconds; " + 
-                            TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
-                            + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
-            // for GUI...
-            publish("End: " + end + ": " + end_time.toString());
-            publish("Total time: " + (end - start_time) + " milliseconds; " + 
-                            TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
-                            + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
-            
-            
+                //compute statistics results...
+                System.out.println("Estimating MRMPlus QCs...");
+                logWriter.println("Estimating MRMPlus QCs...");
+                publish("Estimating MRMPlus QCs...");
+                PeptideQCEstimator qcEstimator = new PeptideQCEstimator();
+                setProgress(0);
+                HashMap<String, LinkedList<PeptideResult>> peptideQCEstimates = 
+                        qcEstimator.estimatePeptidesQCs(pepToRecordsMap, pointToDilutionMap, configFile, logWriter);
+                setProgress(75);
 
-            logWriter.close();
-            setProgress(100);
+                //Print results
+                System.out.println("Printing MRMPlus QC estimates...");
+                logWriter.println("Printing MRMPlus QC estimates...");
+                publish("Printing MRMPlus QC estimates...");
+                QCEstimatesPrinter printer = new QCEstimatesPrinter();
+                printer.printMRMPlusEstimates(peptideQCEstimates, configFile);
+                setProgress(90);
+
+
+                System.out.println("...Done!!!");
+                logWriter.println("...Done!!!");
+                publish("...Done!!!");
+
+
+                Date end_time = new Date();
+                long end = end_time.getTime();
+                // for logger...
+                logWriter.println("End: " + end + ": " + end_time.toString());
+                logWriter.println("Total time: " + (end - start_time) + " milliseconds; " + 
+                                TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
+                                + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
+                // for GUI...
+                publish("End: " + end + ": " + end_time.toString());
+                publish("Total time: " + (end - start_time) + " milliseconds; " + 
+                                TimeUnit.MILLISECONDS.toMinutes(end - start_time) + " min(s), "
+                                + (TimeUnit.MILLISECONDS.toSeconds(end - start_time) - 
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(end - start_time))) + " seconds.");
+
+
+
+                logWriter.close();
+                setProgress(100);
+                
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
             return null;
         }
-        
         
     }
 

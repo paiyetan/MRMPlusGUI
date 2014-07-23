@@ -14,10 +14,7 @@ import mrmplus.PeptideRecord;
 import mrmplus.PeptideResult;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.estimators.*;
-import mrmplus.statistics.resultobjects.CarryOver;
-import mrmplus.statistics.resultobjects.LimitOfDetection;
-import mrmplus.statistics.resultobjects.Linearity;
-import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
+import mrmplus.statistics.resultobjects.*;
 
 
 /**
@@ -284,38 +281,6 @@ public class PeptideQCEstimator {
         // ************************* //
         // *** Defaults to FALSE ***
         // ************************* //
-        //Estimate Upper Limit of Quantitation.
-        if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
-            System.out.println(" Estimating Upper Limit of Quantitation...");
-            logWriter.println(" Estimating Upper Limit of Quantitation...");
-            
-            PeptideULOQEstimator uLOQEstimator = new PeptideULOQEstimator();
-            
-            // for each of the peptide sequence
-            for(String peptideSequence : peptideSequences){
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
-                
-                
-                // determine peptidesResultsOutputted
-                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
-                    // compute summed...
-                    
-                } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
-                    // compute for each transitions
-                    
-                } else {
-                    // compute for both summed and transitions...
-                }
-                
-                //set ULOQ(s) for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
-            }
-            
-        }
         
         
         //Estimate Carry-Over.
@@ -382,40 +347,138 @@ public class PeptideQCEstimator {
             }          
         }
         //Partially validate Specificity.
+        /*
+         * Described as the ratio of transitions determined in each sample at all concenterations (ratios 
+         * of peak areas of different transitions of the same peptide).
+         * In all samples above the LLOQ, no transition ratio should deviate >30% from the mean
+         * 
+         */
         if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
             System.out.println(" Partially validating specificity...");
             logWriter.println(" Partially validating specificity...");
             
-            PeptideSpecValidator specValidator = new PeptideSpecValidator();
+            PeptideSpecificityPartialValidator specValidator = new PeptideSpecificityPartialValidator();
             
             // for each of the peptide sequence
             for(String peptideSequence : peptideSequences){
-                // get instantiated PeptideResult object [place holder for derived results]
-                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.get(peptideSequence);
-                // get associated PeptideRecords...
-                LinkedList<PeptideRecord> peptideRecords = pepToRecordsMap.get(peptideSequence);
                 
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);// get instantiated PeptideResult object [place holder for derived results]
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence); // get associated PeptideRecords...
+                LinkedList<PartialValidationOfSpecificity> pvspecificities = null;
+                // determine peptidesResultsOutputted
+                if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
+                    // compute summed...
+                    // in this case, a "SUMMED" computation is not applicable... 
+                    pvspecificities = specValidator.partiallyValidateSpecificity(sequenceMappedPeptideRecords, 
+                                                                    PeptideResultOutputType.SUMMED, 
+                                                                        pointToDilutionMap, 
+                                                                            config, 
+                                                                                logWriter,
+                                                                                peptideResults//as the respective transition LLOQ
+                                                                                );   
+                } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
+                    // compute for each transitions
+                    // compute for each transitions
+                    pvspecificities = specValidator.partiallyValidateSpecificity(sequenceMappedPeptideRecords, 
+                                                                    PeptideResultOutputType.TRANSITIONS, 
+                                                                        pointToDilutionMap, 
+                                                                            config, 
+                                                                                logWriter,
+                                                                                peptideResults//as the respective transition LLOQ
+                                                                                );            //will be needed to validate specificity
+                } else {
+                    // compute for both summed and transitions...
+                    pvspecificities = specValidator.partiallyValidateSpecificity(sequenceMappedPeptideRecords, 
+                                                                    PeptideResultOutputType.BOTH, 
+                                                                        pointToDilutionMap, 
+                                                                            config, 
+                                                                                logWriter,
+                                                                                peptideResults//as the respective transition LLOQ
+                                                                                );   
+                }
+                
+                logWriter.println("   " + pvspecificities.size() + " CarryOver objects associated with peptide '" + peptideSequence);
+                // set PartialvalidationOfSpecificity(ies) for peptide...[in each associated peptide result object...
+                // peptideResults
+                for(PeptideResult peptideResult : peptideResults){
+                    String transitionID = peptideResult.getTransitionID();
+                    //find peptideResult with same transitionID
+                    for(int i = 0; i < pvspecificities.size(); i++){
+                        if(transitionID.equalsIgnoreCase(pvspecificities.get(i).getTransitionID())){
+                            peptideResult.setPartialValidationOfSpecificity(pvspecificities.get(i));
+                        }
+                    }
+                }
+                //remove and re-insert peptideToPeptideResult mapping...
+                peptideQCEstimates.put(peptideSequence, peptideResults);
+            }
+        }
+        
+        //Estimate Upper Limit of Quantitation.
+        /*
+         * Described as the highest concentration that lies on the linear part of the response curve.
+         * According to http://www.panomics.com/product/64/, the upper limit of quantitation (ULOQ) is defined as the 
+         * highest analyte concentration that can be quantified with acceptable precision and accuracy.
+         * 
+         */
+        if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
+            System.out.println(" Estimating Upper Limit of Quantitation...");
+            logWriter.println(" Estimating Upper Limit of Quantitation...");
+            
+            PeptideULOQEstimator uLOQEstimator = new PeptideULOQEstimator();
+            
+            // for each of the peptide sequence
+            for(String peptideSequence : peptideSequences){
+                
+                LinkedList<PeptideResult> peptideResults = peptideQCEstimates.remove(peptideSequence);
+                LinkedList<PeptideRecord> sequenceMappedPeptideRecords = pepToRecordsMap.get(peptideSequence);
+                LinkedList<UpperLimitOfQuantification> uloqs = null;
                 
                 // determine peptidesResultsOutputted
                 if(config.get("peptidesResultsOutputted").equalsIgnoreCase("SUMMED")){
                     // compute summed...
+                    uloqs = uLOQEstimator.estimateULOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.SUMMED, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter); 
                     
                 } else if(config.get("peptidesResultsOutputted").equalsIgnoreCase("TRANSITIONS")){
                     // compute for each transitions
-                    
+                    uloqs = uLOQEstimator.estimateULOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.TRANSITIONS, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter); 
                 } else {
                     // compute for both summed and transitions...
+                    uloqs = uLOQEstimator.estimateULOQ(sequenceMappedPeptideRecords, 
+                                                            PeptideResultOutputType.BOTH, 
+                                                                pointToDilutionMap, 
+                                                                    config, 
+                                                                        logWriter); 
                 }
                 
-                //set PartialSpecValidationValues(s) for peptide...
-                
-                //remove and re-insert peptideToPeptideResult mapping... 
+                logWriter.println("   " + uloqs.size() + " ULOQs estimated associated with peptide '" + peptideSequence);
+                // set LLOQ(s) for peptide...[in each associated peptide result object...
+                // peptideResults
+                for(PeptideResult peptideResult : peptideResults){
+                    String transitionID = peptideResult.getTransitionID();
+                    //find peptideResult with same transitionID
+                    for(int i = 0; i < uloqs.size(); i++){
+                        if(transitionID.equalsIgnoreCase(uloqs.get(i).getTransitionID())){
+                            peptideResult.setUpperLimitOfQuantification(uloqs.get(i));
+                        }
+                    }
+                }
+                //re-insert peptideToPeptideResult mapping...
+                peptideQCEstimates.put(peptideSequence, peptideResults);
             }
+            
         }
-        
+ 
         return peptideQCEstimates;
     }
-
-    
+   
     
 }

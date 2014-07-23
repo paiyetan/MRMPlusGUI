@@ -6,10 +6,7 @@ package mrmplus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import mrmplus.statistics.resultobjects.CarryOver;
-import mrmplus.statistics.resultobjects.Linearity;
-import mrmplus.statistics.resultobjects.LimitOfDetection;
-import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
+import mrmplus.statistics.resultobjects.*;
 
 /**
  *
@@ -32,6 +29,8 @@ public class PeptideResult {
     private LowerLimitOfQuantification lowerLimitOfQuantification;
     private Linearity linearity;
     private CarryOver carryOver;
+    private PartialValidationOfSpecificity pvspecificity;
+    private UpperLimitOfQuantification upperLimitOfQuantification;
                
     public PeptideResult(String peptideSequence, 
                     LinkedList<PeptideRecord> mappedRecords,
@@ -46,17 +45,6 @@ public class PeptideResult {
         this.peptideSequence = peptideSequence;
     }
 
-    /*
-    public void setLimitsOfDetections(LinkedList<LimitOfDetection> limitsOfDetections) {
-        this.limitsOfDetections = limitsOfDetections;
-    }
-
-    public void setLowerLimitsOfQuantifications(LinkedList<LowerLimitOfQuantification> lowerLimitsOfQuantifications) {
-        this.lowerLimitsOfQuantifications = lowerLimitsOfQuantifications;
-    }
-    * 
-    */
-    
     public String getPeptideSequence() {
         return peptideSequence;
     }
@@ -76,7 +64,6 @@ public class PeptideResult {
     public void setTransitionID(String transitionID) {
         this.transitionID = transitionID;
     }
-
     
     public void setLimitOfDetection(LimitOfDetection limitOfDetection) {
         this.limitOfDetection = limitOfDetection;
@@ -92,6 +79,14 @@ public class PeptideResult {
     
     public void setCarryOver(CarryOver carryOver) {
         this.carryOver = carryOver;
+    }
+    
+    public void setPartialValidationOfSpecificity(PartialValidationOfSpecificity pvspecificity) {
+        this.pvspecificity = pvspecificity;
+    }
+    
+    public void setUpperLimitOfQuantification(UpperLimitOfQuantification uloq) {
+        this.upperLimitOfQuantification = uloq;
     }
         
     public LimitOfDetection getLimitOfDetection() {
@@ -110,16 +105,13 @@ public class PeptideResult {
         return carryOver;
     }
 
-    
-    
-    
+    public PartialValidationOfSpecificity getPartialValidationOfSpecificity() {
+        return pvspecificity;
+    }
 
-    
-    
-    
-
-    
-    
-    
+    public UpperLimitOfQuantification getUpperLimitOfQuantification() {
+        return upperLimitOfQuantification;
+    }
+ 
     
 }

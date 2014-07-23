@@ -83,10 +83,6 @@ public class QCEstimatesPrinter {
         // ************************* //
         // *** Defaults to FALSE ***
         // ************************* //
-        // Upper Limit of Quantitation.
-        if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
-             throw new UnsupportedOperationException("Not yet implemented");           
-        }
         
         // Carry-Over.
         if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
@@ -98,9 +94,22 @@ public class QCEstimatesPrinter {
         }
         // Partially validate Specificity.
         if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
-            throw new UnsupportedOperationException("Not yet implemented");
+            //throw new UnsupportedOperationException("Not yet implemented");
+            printer.print("\t" + "PVSpec.hasValuesOverLLOQ");
+            printer.print("\t" + "PVSpec.pointOfMaxDev (Cali_Point)");
+            printer.print("\t" + "PVSpec.pointOfMaxDev (Mean)");
+            printer.print("\t" + "PVSpec.maxDeviation (%)");
         }
         
+        // Upper Limit of Quantitation.
+        if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
+            //throw new UnsupportedOperationException("Not yet implemented");
+            printer.print("\t" + "ULOQ.CaliPoint");
+            printer.print("\t" + "ULOQ.Coefficient");
+            printer.print("\t" + "ULOQ.MeanValue");
+            printer.print("\t" + "ULOQ.StDeviation");
+        }
+       
         printer.print("\n");
     }
 
@@ -160,10 +169,7 @@ public class QCEstimatesPrinter {
             // *** Defaults to FALSE ***
             // ************************* //
             // Upper Limit of Quantitation.
-            if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
-                throw new UnsupportedOperationException("Not yet implemented");           
-            }
-
+            
             // Carry-Over.
             if(config.get("computeCarryOver").equalsIgnoreCase("TRUE")){
                 //throw new UnsupportedOperationException("Not yet implemented");
@@ -174,8 +180,40 @@ public class QCEstimatesPrinter {
             }
             // Partially validate Specificity.
             if(config.get("computePartialValidationOfSpecificity").equalsIgnoreCase("TRUE")){
-                throw new UnsupportedOperationException("Not yet implemented");
+                //throw new UnsupportedOperationException("Not yet implemented");
+                /*
+                 *  "PVSpec.hasValuesOverLLOQ"
+                    "PVSpec.pointOfMaxDev (Cali_Point)"
+                    "PVSpec.pointOfMaxDev (Mean)"
+                    "PVSpec.maxDeviation (%)"
+                 */
+                PartialValidationOfSpecificity pvs = peptideResult.getPartialValidationOfSpecificity();
+                printer.print("\t" + pvs.hasValueOverLLOQ());
+                printer.print("\t" + pvs.getCali_Point());
+                printer.print("\t" + pvs.getMeanAtMaxPeakRatioDeviation());
+                printer.print("\t" + pvs.getMaxPeakRatioDevFromMean());
             }
+            
+            if(config.get("computeULOQ").equalsIgnoreCase("TRUE")){
+                //throw new UnsupportedOperationException("Not yet implemented");   
+                /*
+                 * 
+                 */
+                UpperLimitOfQuantification uloq = peptideResult.getUpperLimitOfQuantification();
+                CoefficientOfVariation coef = uloq.getCoefficientOfVariation();
+                if(coef != null){
+                    printer.print("\t" + coef.getCalibrationPoint()); // "LLOQ.CaliPoint");
+                    printer.print("\t" + coef.getCoef()); //"LLOQ.Coefficient");
+                    printer.print("\t" + coef.getMean()); //"LLOQ.MeanValue");
+                    printer.print("\t" + coef.getSd()); //"LLOQ.StDeviation");
+                } else {
+                    printer.print("\tNA"); // "LLOQ.CaliPoint");
+                    printer.print("\tNA"); // "LLOQ.Coefficient");
+                    printer.print("\tNA"); // "LLOQ.MeanValue");
+                    printer.print("\tNA"); // "LLOQ.StDeviation");
+                }
+            }
+
 
             printer.print("\n");
         

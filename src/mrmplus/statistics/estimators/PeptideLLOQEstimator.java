@@ -27,10 +27,10 @@ public class PeptideLLOQEstimator {
     public LinkedList<LowerLimitOfQuantification> estimateLLOQ(
                                                     //LinkedList<PeptideResult> peptideResults,
                                                     LinkedList<PeptideRecord> peptideRecords, 
-                                                    PeptideResultOutputType peptideResultOutputType,
-                                                    HashMap<String, Double> pointToDilutionMap,
-                                                    HashMap<String, String> config,
-                                                    PrintWriter logWriter) throws FileNotFoundException, IOException {
+                                                        PeptideResultOutputType peptideResultOutputType,
+                                                            HashMap<String, Double> pointToDilutionMap,
+                                                                HashMap<String, String> config,
+                                                                    PrintWriter logWriter) throws FileNotFoundException, IOException {
         //throw new UnsupportedOperationException("Not yet implemented");
         LinkedList<LowerLimitOfQuantification> lloqs = new LinkedList<LowerLimitOfQuantification>();
         switch (peptideResultOutputType){

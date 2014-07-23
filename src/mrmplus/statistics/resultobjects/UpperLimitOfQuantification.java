@@ -14,6 +14,8 @@ public class UpperLimitOfQuantification {
     private double blankOnly;
     private double blankPlusLowConc;
     private double rsdLimit;
+    
+    private CoefficientOfVariation coefficientOfVariation;
 
     public UpperLimitOfQuantification(String transitionID, 
                                         double blankOnly, double blankPlusLowConc, double rsdLimit) {
@@ -21,6 +23,15 @@ public class UpperLimitOfQuantification {
         this.blankOnly = blankOnly;
         this.blankPlusLowConc = blankPlusLowConc;
         this.rsdLimit = rsdLimit;
+    }
+
+    public UpperLimitOfQuantification(String transition, CoefficientOfVariation uloq) {
+        this.transitionID = transition;
+        this.coefficientOfVariation = uloq;
+    }
+    
+    public CoefficientOfVariation getCoefficientOfVariation() {
+        return coefficientOfVariation;
     }
 
     public double getBlankOnly() {
