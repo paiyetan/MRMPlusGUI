@@ -1095,28 +1095,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             for(String message : messages){
                 textArea.append(message + "\n");
             }           
-        }
-        
-        /*
-        @Override
-        protected void done(){
-            // save [last user's] configurations...
-            
-            if(!isCancelled()){
-                try {
-                    PrintWriter printer = new PrintWriter("./MRMPlus.configFile");
-                    Set<String> configurations = configFile.keySet();
-                    for(String configuration : configurations){
-                        printer.println(configuration + "=" + configFile.get(configuration));
-                    }
-                } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
-                    Logger.getLogger(MRMPlusGUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        * 
-        */
+        }        
         
         @Override
         protected Void doInBackground() throws Exception {

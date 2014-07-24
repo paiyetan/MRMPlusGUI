@@ -55,8 +55,10 @@ public class QCEstimatesPrinter {
             printer.print("\t" + "LOD.average");
             printer.print("\t" + "LOD.stDeviation");
             printer.print("\t" + "LOD.value");
-            printer.print("\t" + "LOD.usedMinSpiked");
+            printer.print("\t" + "LOD.usedSpiked");
             printer.print("\t" + "LOD.zeroFlagged");
+            printer.print("\t" + "LOD.concPointUsed");
+            printer.print("\t" + "LOD.undetectable");
         }
         // Lower Limit of Quantitation.
         if(config.get("computeLLOQ").equalsIgnoreCase("TRUE")){
@@ -129,8 +131,10 @@ public class QCEstimatesPrinter {
                 printer.print("\t" + lod.getAverage()); // "average");
                 printer.print("\t" + lod.getStandardDeviation()); //"standardDeviation");
                 printer.print("\t" + lod.getLimitOfDetection()); //"limitOfDetectionValue");
-                printer.print("\t" + lod.usedMinSpikedInConcentration()); //"usedMinSpikedInConcentration");
-                printer.print("\t" + lod.isZeroValueFlagged()); //"zeroFlagged");
+                printer.print("\t" + lod.usedSpikedInConcentration()); //"usedSpikedInConcentration");
+                printer.print("\t" + lod.hasZeroValueFlagged()); //"zeroFlagged");
+                printer.print("\t" + lod.getConcentrationPointUsed());//"LOD.concPointUsed");
+                printer.print("\t" + lod.isUndetectable());//"LOD.undetectable");
 
             }
             // Lower Limit of Quantitation.

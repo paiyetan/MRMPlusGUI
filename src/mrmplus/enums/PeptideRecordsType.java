@@ -10,5 +10,5 @@ package mrmplus.enums;
  */
 public enum PeptideRecordsType {
     PRECURVEBLANKS,
-    MINSPIKEDCONCENTRATION
+    SPIKEDCONCENTRATION
 }
