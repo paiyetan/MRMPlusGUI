@@ -15,16 +15,16 @@ import java.util.LinkedList;
  * PreCurveBlanks to maximum spiked-in concentration.
  * 
  */
-public class LODDetectionLevelsPriorityQueue {
+public class DetectionLevelPriorityQueue {
     
     private LinkedList<LimitOfDetection> priorityQueue;
     
-    public LODDetectionLevelsPriorityQueue(){
+    public DetectionLevelPriorityQueue(){
         this.priorityQueue = new LinkedList<LimitOfDetection>();
-    }
+    } 
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public LODDetectionLevelsPriorityQueue(LimitOfDetection lod) {
+    public DetectionLevelPriorityQueue(LimitOfDetection lod) {
         this.priorityQueue = new LinkedList<LimitOfDetection>();
         this.insert(lod);
     }

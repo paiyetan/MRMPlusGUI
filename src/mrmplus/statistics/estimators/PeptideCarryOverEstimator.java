@@ -30,9 +30,9 @@ public class PeptideCarryOverEstimator {
         switch (peptideResultOutputType){
             
             case TRANSITIONS:
-                //estimate LOD per transition...
-                logWriter.println("    transition(s) associated LLOQ estimation...");
-                System.out.println("    transition(s) associated LLOQ estimation...");
+                //estimate CarryOver per transition...
+                logWriter.println("    transition(s) associated CarryOver estimation...");
+                System.out.println("    transition(s) associated CarryOver estimation...");
                 PeptideTransitionToRecordsMapper transToRecordsMapper = new PeptideTransitionToRecordsMapper();
                 HashMap<String, LinkedList<PeptideRecord>> transitionToRecords = 
                         transToRecordsMapper.mapTransitionsToRecords(sequenceMappedPeptideRecords);
@@ -49,7 +49,7 @@ public class PeptideCarryOverEstimator {
                                                               " peptide records were mapped...");
                     System.out.println("     to transition " + transition + ", " + transitionRecords.size() + 
                                                               " peptide records were mapped...");
-                    // retrieve blank peptide records after the after the highest dilution concentration
+                    // retrieve blank peptide records after the highest dilution concentration
                     // NB: This is hard coded as peptide records with run order 11, 20, and 29
                     LinkedList<PeptideRecord> carryOverBlankRecords = new LinkedList<PeptideRecord>();
                     for(PeptideRecord transitionRecord : transitionRecords){
@@ -132,7 +132,8 @@ public class PeptideCarryOverEstimator {
         double average = 0;
         double[] values = new double[carryOverBlankRecords.size()];
         for(int i = 0; i < carryOverBlankRecords.size(); i++){
-            values[i] = carryOverBlankRecords.get(i).getLightArea();  //NB. we used the light peak area....                      
+            //values[i] = carryOverBlankRecords.get(i).getLightArea();  //NB. we used the light peak area.... 
+            values[i] = carryOverBlankRecords.get(i).getHeavyArea();  //NB. we used the heavy peak area....
         }
         //compute average
         Mean mean = new Mean();

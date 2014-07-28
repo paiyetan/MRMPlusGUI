@@ -175,16 +175,28 @@ public class PeptideLinearityEstimator {
         SimpleRegression slr = new SimpleRegression();
         Set<String> caliPoints = caliPointToRecords.keySet();
         
-        //get middle calibration point;
-        int midCaliPoint = caliPoints.size()/2;
-        String midCaliPointID = null;
+        /*
+         The assay development guidelines specifies:
+         The linearity of the assay (over any three points of the curve) will be assessed using the middle point(s). The 
+         observed concentration of the average of the three replicates of the middle concentration should be within 5% of that 
+         predicted from the best fit line passing through the other point9s). Alternative, if there are five or more points 
+         that are being considered for linearity, one can fit a power function to the data (y=Ax^n, where y = peak area ratio
+         or observed concentration, and x = expected concentration). 
+        * 
+        */
         
-        int midCaliPointTracker = 0;
+        //get middle calibration point;
+        int midCaliPoint = caliPoints.size()/2; // for a 7 point calibration, this correspond to Point_4
+        String midCaliPointID = "Point_" + midCaliPoint;
+        System.out.println("       estimated mid-spikedIn concentration point as " + midCaliPointID);
+        //int midCaliPointTracker = 0;
         for(String caliPoint : caliPoints){
-            midCaliPointTracker++;
-            double xCoordinate = pointToDilutionMap.get(caliPoint); // independent variable
-            LinkedList<PeptideRecord> mappedRecords = caliPointToRecords.get(caliPoint);
+            //midCaliPointTracker++;
             
+            //compute averaged peakArea ratio value of mappedRecords to derive yCoordinate response variable
+            
+            /*
+             *  Using all value mappings
             // at the middle spiked-in concentration...
             if(midCaliPointTracker == midCaliPoint){
                 //get averaged measured conceteration value;
@@ -195,12 +207,38 @@ public class PeptideLinearityEstimator {
                     values[i] = mappedRecords.get(i).getMeasuredConcentration();
                 }
                 midResponseValue = mean.evaluate(values);
-            }
+            } 
             
             for(PeptideRecord mappedRecord : mappedRecords){
                 double yCoordinate = mappedRecord.getMeasuredConcentration(); // response variable
                 slr.addData(xCoordinate, yCoordinate);
             }
+            * 
+            */
+            LinkedList<PeptideRecord> mappedRecords = caliPointToRecords.get(caliPoint); // which pretty much represent 
+                                                                                         // records from each replicate
+            // since we are interested in points 2, 3, and 6
+            if(caliPoint.equalsIgnoreCase("Point_2") || caliPoint.equalsIgnoreCase("Point_3") ||
+                    caliPoint.equalsIgnoreCase("Point_6")){ //points of interest for linear model
+                double xCoordinate = pointToDilutionMap.get(caliPoint); // independent variable
+                // get the average of the peak Area ratios of mapped records
+                Mean mean = new Mean();
+                double[] values = new double[mappedRecords.size()];
+                for(int i = 0; i < values.length; i++){
+                    values[i] = mappedRecords.get(i).getPeakAreaRatio(); //use peak area ratio.....
+                }
+                double yCoordinate = mean.evaluate(values);
+                slr.addData(xCoordinate, yCoordinate);
+            }
+            if(midCaliPointID.equalsIgnoreCase(caliPoint)){ // mid point
+                Mean mean = new Mean();
+                double[] values = new double[mappedRecords.size()];
+                for(int i = 0; i < values.length; i++){
+                    values[i] = mappedRecords.get(i).getPeakAreaRatio();
+                }
+                midResponseValue = mean.evaluate(values);
+            }
+            
         }
         //LinkedList<Double> pairedValue;
         slope = slr.getSlope();
