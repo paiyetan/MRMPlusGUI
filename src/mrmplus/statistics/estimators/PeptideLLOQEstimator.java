@@ -13,8 +13,7 @@ import java.util.Set;
 import mrmplus.PeptideRecord;
 import mrmplus.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideResultOutputType;
-import mrmplus.statistics.resultobjects.CoefficientOfVariation;
-import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
+import mrmplus.statistics.resultobjects.*;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
@@ -24,106 +23,18 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
  */
 public class PeptideLLOQEstimator {
     
-    public LinkedList<LowerLimitOfQuantification> estimateLLOQ(
-                                                    //LinkedList<PeptideResult> peptideResults,
-                                                    LinkedList<PeptideRecord> peptideRecords, 
-                                                        PeptideResultOutputType peptideResultOutputType,
-                                                            HashMap<String, Double> pointToDilutionMap,
-                                                                HashMap<String, String> config,
-                                                                    PrintWriter logWriter) throws FileNotFoundException, IOException {
+    public LinkedList<LowerLimitOfQuantification> estimateLLOQ(LinkedList<PeptideRecord> peptideRecords, 
+                                                                    PeptideResultOutputType peptideResultOutputType,
+                                                                        HashMap<String, Double> pointToDilutionMap,
+                                                                            HashMap<String, String> config,
+                                                                                PrintWriter logWriter) throws FileNotFoundException, IOException {
         //throw new UnsupportedOperationException("Not yet implemented");
         LinkedList<LowerLimitOfQuantification> lloqs = new LinkedList<LowerLimitOfQuantification>();
         switch (peptideResultOutputType){
             
             case TRANSITIONS:
-                //estimate LOD per transition...
-                logWriter.println("    transition(s) associated LLOQ estimation...");
-                System.out.println("    transition(s) associated LLOQ estimation...");
-                PeptideTransitionToRecordsMapper transToRecordsMapper = new PeptideTransitionToRecordsMapper();
-                HashMap<String, LinkedList<PeptideRecord>> transitionToRecords = 
-                        transToRecordsMapper.mapTransitionsToRecords(peptideRecords);
-                Set<String> transitions = transitionToRecords.keySet();
-                logWriter.println("    " + transitions.size() + " transitions found associated with peptide " + 
-                        peptideRecords.getFirst().getPeptideSequence());
-                System.out.println("    " + transitions.size() + " transitions found associated with peptide " + 
-                        peptideRecords.getFirst().getPeptideSequence());
-                for(String transition : transitions){
-                    // for each transition,
-                    //  get records associated with said transition....
-                    LinkedList<PeptideRecord> transitionRecords = transitionToRecords.get(transition);
-                    logWriter.println("     to transition " + transition + ", " + transitionRecords.size() + 
-                                                              " peptide records were mapped...");
-                    System.out.println("     to transition " + transition + ", " + transitionRecords.size() + 
-                                                              " peptide records were mapped...");
-                    //
-                    // N.B. For each transition, there are a number of conc. measures (caliberation pointa) for which 
-                    // three replicates were performed at each point...
-                    // map calibration points to records (which are repectively from the [three] replicates)
-                    ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
-                            new ExperimentCalibrationPointToRecordsMapper();
-                    HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
-                            pointToRecordsMapper.mapCalibrationPointsToRecords(transitionRecords);
-                    logWriter.println("     to transition " + transition + ", " + caliPointToRecords.keySet().size() + 
-                                                              " calibration points were found...");
-                    System.out.println("     to transition " + transition + ", " + caliPointToRecords.keySet().size() + 
-                                                              " calibration points were found...");
-                    //for each of the calibration point, compute CVs
-                    LinkedList<CoefficientOfVariation> transitonCVs = new LinkedList<CoefficientOfVariation>();
-                    logWriter.println("       values found calibration points were: ");
-                    System.out.println("       values found calibration points were: ");
-                    Set<String> caliPoints = caliPointToRecords.keySet();
-                    for(String caliPoint : caliPoints){
-                        logWriter.print("        " + caliPoint + ": ");
-                        System.out.print("        " + caliPoint + ": ");
-                        LinkedList<PeptideRecord> mappedRecords = caliPointToRecords.get(caliPoint);
-                        double[] values = new double[mappedRecords.size()];
-                        for(int i = 0; i < mappedRecords.size(); i++){
-                            values[i] = mappedRecords.get(i).getMeasuredConcentration();
-                            if(i == mappedRecords.size()-1){
-                                logWriter.print(values[i] + "\n");
-                                System.out.print(values[i] + "\n");
-                            }else{ 
-                                logWriter.print(values[i] + ", ");
-                                System.out.print(values[i] + ", ");
-                            }
-                        }
-                        //compute average
-                        Mean mean = new Mean();
-                        double average = mean.evaluate(values);
-                        logWriter.println("          Mean: " + average);
-                        System.out.println("          Mean: " + average);
-                        //compute standard_deviation
-                        StandardDeviation sdev = new StandardDeviation();
-                        double sd = sdev.evaluate(values);
-                        logWriter.println("          St_Dev: " + sd);
-                        System.out.println("          St_Dev: " + sd);
-                        //compute cv
-                        double cv = (sd/average) * 100;
-                        logWriter.println("          Coef_Var: " + cv);
-                        System.out.println("          Coef_Var: " + cv);
-                        
-                        double dilutionConcentration = pointToDilutionMap.get(caliPoint);
-                        // String concentrationPoint = caliPoint;
-                        CoefficientOfVariation coef = new CoefficientOfVariation(average, sd, cv, 
-                                                                dilutionConcentration, caliPoint);
-                        // test value returned for coefficient, to ensure no Double.NaN or Double.INFINITY value is considered 
-                        if(isValid(coef))
-                            transitonCVs.add(coef);
-                    }
-                    
-                    //compute LLOQ
-                    CoefficientOfVariation lloq = computeLLOQ(transitonCVs, pointToDilutionMap);
-                    
-                    /*
-                    //map replicates (curve) to serial dilution records
-                    ExperimentReplicateToRecordsMapper expReplicateToRecords = new ExperimentReplicateToRecordsMapper();
-                    HashMap<String,LinkedList<PeptideRecord>> replicateToRecords = 
-                            expReplicateToRecords.mapReplicatesToRecords(transitionRecords);
-
-                    * 
-                    */
-                    lloqs.add(new LowerLimitOfQuantification(transition, lloq));
-                }
+                TransitionsLLOQEstimator tLLOQE = new TransitionsLLOQEstimator();
+                lloqs = tLLOQE.estimateLowerLimitsOfQuantifications(peptideRecords, config, logWriter, pointToDilutionMap);
                 break;
             
             case SUMMED:
@@ -297,4 +208,153 @@ public class PeptideLLOQEstimator {
         return valid;
     }
     
+    private class TransitionsLLOQEstimator{
+        
+        public MinimumLLOQDetectionObject estimateMinLLOQDetectionCaliPointAcross(LinkedList<PeptideRecord> peptideRecords,
+                                                        HashMap<String, String> config,
+                                                                PrintWriter logWriter,
+                                                                    HashMap<String, Double> pointToDilutionMap) {
+            MinimumLLOQDetectionObject minLLOQDObj = null;                
+            
+            logWriter.println("    transition(s) associated LLOQ estimation...");
+            System.out.println("    transition(s) associated LLOQ estimation...");
+            PeptideTransitionToRecordsMapper transToRecordsMapper = new PeptideTransitionToRecordsMapper();
+            HashMap<String, LinkedList<PeptideRecord>> transitionToRecords = 
+                    transToRecordsMapper.mapTransitionsToRecords(peptideRecords);
+            Set<String> transitions = transitionToRecords.keySet();
+            logWriter.println("    " + transitions.size() + " transitions found associated with peptide " + 
+                    peptideRecords.getFirst().getPeptideSequence());
+            System.out.println("    " + transitions.size() + " transitions found associated with peptide " + 
+                    peptideRecords.getFirst().getPeptideSequence());
+            
+            
+            // instantiate a transition to LLOQCaliPointsCVPriorityQueue 
+            HashMap<String, LLOQCaliPointsCVPriorityQueue> transitionToCaliPointsCVQueue = 
+                    new HashMap<String, LLOQCaliPointsCVPriorityQueue>();
+            
+            for(String transition : transitions){
+                
+                // instantiate a PropriorityQueue to hold CoefficientOfVariation objects of calibration points of cv < 20% 
+                LLOQCaliPointsCVPriorityQueue caliPointsCVQueue = new LLOQCaliPointsCVPriorityQueue();
+                
+                // for each transition,
+                //  get records associated with said transition....
+                LinkedList<PeptideRecord> transitionRecords = transitionToRecords.get(transition);
+                logWriter.println("     to transition " + transition + ", " + transitionRecords.size() + 
+                                                            " peptide records were mapped...");
+                System.out.println("     to transition " + transition + ", " + transitionRecords.size() + 
+                                                            " peptide records were mapped...");
+                //
+                // N.B. For each transition, there are a number of conc. measures (caliberation pointa) for which 
+                // three replicates were performed at each point...
+                // map calibration points to records (which are repectively from the [three] replicates)
+                ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
+                        new ExperimentCalibrationPointToRecordsMapper();
+                HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
+                        pointToRecordsMapper.mapCalibrationPointsToRecords(transitionRecords);
+                logWriter.println("     to transition " + transition + ", " + caliPointToRecords.keySet().size() + 
+                                                            " calibration points were found...");
+                System.out.println("     to transition " + transition + ", " + caliPointToRecords.keySet().size() + 
+                                                            " calibration points were found...");
+                //for each of the calibration point, compute CVs
+                LinkedList<CoefficientOfVariation> transitonCVs = new LinkedList<CoefficientOfVariation>();
+                logWriter.println("       values found calibration points were: ");
+                System.out.println("       values found calibration points were: ");
+                Set<String> caliPoints = caliPointToRecords.keySet();
+                for(String caliPoint : caliPoints){
+                    logWriter.print("        " + caliPoint + ": ");
+                    System.out.print("        " + caliPoint + ": ");
+                    LinkedList<PeptideRecord> mappedRecords = caliPointToRecords.get(caliPoint);
+                    double[] values = new double[mappedRecords.size()];
+                    for(int i = 0; i < mappedRecords.size(); i++){
+                        values[i] = mappedRecords.get(i).getMeasuredConcentration();
+                        if(i == mappedRecords.size()-1){
+                            logWriter.print(values[i] + "\n");
+                            System.out.print(values[i] + "\n");
+                        }else{ 
+                            logWriter.print(values[i] + ", ");
+                            System.out.print(values[i] + ", ");
+                        }
+                    }
+                    //compute average
+                    Mean mean = new Mean();
+                    double average = mean.evaluate(values);
+                    logWriter.println("          Mean: " + average);
+                    System.out.println("          Mean: " + average);
+                    //compute standard_deviation
+                    StandardDeviation sdev = new StandardDeviation();
+                    double sd = sdev.evaluate(values);
+                    logWriter.println("          St_Dev: " + sd);
+                    System.out.println("          St_Dev: " + sd);
+                    //compute cv
+                    double cv = (sd/average) * 100;
+                    logWriter.println("          Coef_Var: " + cv);
+                    System.out.println("          Coef_Var: " + cv);
+
+                    if(cv < 20){
+
+                        double dilutionConcentration = pointToDilutionMap.get(caliPoint);
+                        CoefficientOfVariation coef = new CoefficientOfVariation(average, sd, cv, 
+                                                                dilutionConcentration, caliPoint);
+                        // test value returned for coefficient, to ensure no Double.NaN or Double.INFINITY value is considered 
+                        if(isValid(coef))
+                            transitonCVs.add(coef);
+                    }
+                }
+
+                //compute LLOQ
+                CoefficientOfVariation lloq = computeLLOQ(transitonCVs, pointToDilutionMap);
+
+                /*
+                //map replicates (curve) to serial dilution records
+                ExperimentReplicateToRecordsMapper expReplicateToRecords = new ExperimentReplicateToRecordsMapper();
+                HashMap<String,LinkedList<PeptideRecord>> replicateToRecords = 
+                        expReplicateToRecords.mapReplicatesToRecords(transitionRecords);
+
+                * 
+                */
+                lloqs.add(new LowerLimitOfQuantification(transition, lloq));
+            }
+            return minLLOQDObj;
+        }
+        
+        private int estimateMinLLOQDetectionCaliPointAcrossHelper(LinkedList<Integer> detectionCaliPoints) {
+            int minLLOQDetectionCaliPointAccross =0;
+            
+            
+            return minLLOQDetectionCaliPointAccross;          
+        }
+
+        private LinkedList<LowerLimitOfQuantification> estimateLowerLimitsOfQuantifications(LinkedList<PeptideRecord> peptideRecords,
+                                                        HashMap<String, String> config,
+                                                                PrintWriter logWriter) {
+            LinkedList<LowerLimitOfQuantification> lloqs = new LinkedList<LowerLimitOfQuantification>();
+            
+            
+            
+            return lloqs;
+        }  
+        
+    }
+    
+    private class MinimumLLOQDetectionObject {
+
+        private int minLLOQCVCaliPointAcross;
+        private HashMap<String, LLOQCaliPointsCVPriorityQueue> transitionToLLOQCVPriorityQueue;
+        
+        public MinimumLLOQDetectionObject(int minLLOQCVCaliPointAcross, 
+                HashMap<String, LLOQCaliPointsCVPriorityQueue> transitionToLLOQCVPriorityQueue) {
+            this.minLLOQCVCaliPointAcross = minLLOQCVCaliPointAcross;
+            this.transitionToLLOQCVPriorityQueue = transitionToLLOQCVPriorityQueue;       
+        }
+
+        private HashMap<String, LLOQCaliPointsCVPriorityQueue> getTransitionToLLOQCVPriorityQueue() {
+            return transitionToLLOQCVPriorityQueue;
+        }
+
+        private int getMinLLOQCVCaliPointAcross() {
+            return minLLOQCVCaliPointAcross;
+        }
+    }
+
 }

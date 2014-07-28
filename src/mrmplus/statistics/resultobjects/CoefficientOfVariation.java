@@ -8,7 +8,7 @@ package mrmplus.statistics.resultobjects;
  *
  * @author paiyeta1
  */
-public class CoefficientOfVariation {
+public class CoefficientOfVariation implements Comparable{
     
     //private String id;
     private double mean;
@@ -17,6 +17,7 @@ public class CoefficientOfVariation {
     
     private double dilutionConcentration;
     private String calibrationPoint;
+    private int calibrationPointIndex;
     
 
     public CoefficientOfVariation(//String id, 
@@ -44,6 +45,7 @@ public class CoefficientOfVariation {
         this.dilutionConcentration = dilutionConcentration;
         this.calibrationPoint = calibrationPoint;
         setCoefficient();
+        setCalibrationPointIndex();
     }
     
     public CoefficientOfVariation(//String id, 
@@ -55,7 +57,7 @@ public class CoefficientOfVariation {
         this.coef = coef;
         this.dilutionConcentration = dilutionConcentration;
         this.calibrationPoint = calibrationPoint;
-        //setCoefficient();
+        setCalibrationPointIndex();
     }
     
     
@@ -87,6 +89,33 @@ public class CoefficientOfVariation {
 
     public double getDilutionConcentration() {
         return dilutionConcentration;
+    }
+
+    private void setCalibrationPointIndex() {
+        //throw new UnsupportedOperationException("Not yet implemented");
+        this.calibrationPointIndex = Integer.parseInt(this.calibrationPoint.split("_")[1]);
+    }
+    
+    public int getCalibrationPointIndex(){
+        return calibrationPointIndex;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+        int comparison = 0;
+        CoefficientOfVariation objCV = (CoefficientOfVariation) o;
+        int objCaliPointIndex = objCV.calibrationPointIndex;
+        //double objMean = objCV.getMean();
+        
+        if(this.calibrationPointIndex < objCaliPointIndex){
+        //if(this.mean < objMean){
+            comparison = -1;
+        } else if(this.calibrationPointIndex > objCaliPointIndex){
+        //} else if(this.mean > objMean){
+              comparison = 1;
+        }       
+        return comparison;
     }
     
     

@@ -8,7 +8,7 @@ package mrmplus.statistics.resultobjects;
  *
  * @author paiyeta1
  */
-public class LowerLimitOfQuantification {
+public class LowerLimitOfQuantification implements Comparable{
     
     private String transitionID; // could be summed (summation of all transitions associated with peptide sequence) or 
                                  // respectively one of the many number of transitions monitored per peptide.
@@ -48,6 +48,22 @@ public class LowerLimitOfQuantification {
 
     public String getTransitionID() {
         return transitionID;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        int comparison = 0;
+        LowerLimitOfQuantification obj = (LowerLimitOfQuantification) o;
+        int thisCalibrationPointIndex = this.coefficientOfVariation.getCalibrationPointIndex();
+        int objCalibrationPointIndex = obj.getCoefficientOfVariation().getCalibrationPointIndex();
+        
+        if(thisCalibrationPointIndex < objCalibrationPointIndex){
+            comparison = -1;
+        } else if(thisCalibrationPointIndex > objCalibrationPointIndex){
+            comparison = 1;
+        }
+        
+        return comparison;
     }
     
     

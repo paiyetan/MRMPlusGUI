@@ -14,7 +14,7 @@ import mrmplus.PeptideRecord;
 import mrmplus.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideRecordsType;
 import mrmplus.enums.PeptideResultOutputType;
-import mrmplus.statistics.resultobjects.DetectionLevelPriorityQueue;
+import mrmplus.statistics.resultobjects.LODDetectionLevelsPriorityQueue;
 import mrmplus.statistics.resultobjects.LimitOfDetection;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
@@ -24,8 +24,7 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
  * @author paiyeta1
  */
 public class PeptideLODEstimator {
-
-    
+   
     public LinkedList<LimitOfDetection> estimateLOD(LinkedList<PeptideRecord> peptideRecords, 
                                                         PeptideResultOutputType peptideResultOutputType,
                                                             HashMap<String, Double> pointToDilutionMap,
@@ -48,7 +47,7 @@ public class PeptideLODEstimator {
                 // Instantiate a transitionsLODEstimator to derive the lowest cali_Point at which an
                 // an LOD can be estimated across all transitions...
                 TransitionsLODEstimator sumtLODE = new TransitionsLODEstimator();
-                MinimumDetectionObject mDObj = sumtLODE.estimateMinDetectionCaliPointAcross(peptideRecords, config, logWriter);
+                MinimumLODDetectionObject mDObj = sumtLODE.estimateMinDetectionCaliPointAcross(peptideRecords, config, logWriter);
                 int minCaliPoint = mDObj.getMinDetectionCaliPointAcross();                
                 
                 LimitOfDetection summedLOD;
@@ -301,7 +300,7 @@ public class PeptideLODEstimator {
    
     private class TransitionsLODEstimator {       
         
-        public MinimumDetectionObject estimateMinDetectionCaliPointAcross(LinkedList<PeptideRecord> peptideRecords,
+        public MinimumLODDetectionObject estimateMinDetectionCaliPointAcross(LinkedList<PeptideRecord> peptideRecords,
                                                         HashMap<String, String> config,
                                                                 PrintWriter logWriter) {
             //estimate LOD per transition...
@@ -316,8 +315,8 @@ public class PeptideLODEstimator {
 
             //Instantiate a HashMap object to hold transitions and mapped/estimatedDetections 
             // from PreCurveBlanks to maximum spiked-in concentration level...
-            HashMap<String,DetectionLevelPriorityQueue> transitionToDetectionQueue = 
-                    new HashMap<String,DetectionLevelPriorityQueue>();
+            HashMap<String,LODDetectionLevelsPriorityQueue> transitionToDetectionQueue = 
+                    new HashMap<String,LODDetectionLevelsPriorityQueue>();
             
              for(String transition : transitions){
                 //for each transition,
@@ -339,7 +338,7 @@ public class PeptideLODEstimator {
                 transitionPreCurveDerivedLOD.setTransitionID(transition);
                 transitionPreCurveDerivedLOD.setConcentrationPointUsed("preCurveBlanks");
                 // insert the transitionDetectionLevel object into map
-                DetectionLevelPriorityQueue dLPQueue = new DetectionLevelPriorityQueue(transitionPreCurveDerivedLOD);
+                LODDetectionLevelsPriorityQueue dLPQueue = new LODDetectionLevelsPriorityQueue(transitionPreCurveDerivedLOD);
 
                 // map calibration points to records (which are repectively from the [three] replicates)
                 ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
@@ -366,7 +365,7 @@ public class PeptideLODEstimator {
             // Determine minimum calibration point wherein there is a quantifiable LOD across peptide transitions
             LinkedList<Integer> detectionCaliPoints = new LinkedList<Integer>();
             for(String transition : transitions){
-                DetectionLevelPriorityQueue tDLQueue = transitionToDetectionQueue.get(transition);
+                LODDetectionLevelsPriorityQueue tDLQueue = transitionToDetectionQueue.get(transition);
                 // check if there is any detection
                 double detectionLimit = 0;
                 do{
@@ -386,7 +385,7 @@ public class PeptideLODEstimator {
             }
             // the maximum of the detectionCaliPoints is the minimum concenteration for which all transitions are detectable
             int minDetectionCaliPointAcross = estimateMinDetectionCaliPointAcrossHelper(detectionCaliPoints); 
-            return new MinimumDetectionObject(minDetectionCaliPointAcross, transitionToDetectionQueue);
+            return new MinimumLODDetectionObject(minDetectionCaliPointAcross, transitionToDetectionQueue);
         }
         
         private int estimateMinDetectionCaliPointAcrossHelper(LinkedList<Integer> detectionCaliPoints) {
@@ -405,11 +404,11 @@ public class PeptideLODEstimator {
                                                         HashMap<String, String> config,
                                                                 PrintWriter logWriter) {
             LinkedList<LimitOfDetection> lods = new LinkedList<LimitOfDetection>();
-            MinimumDetectionObject mDetection = 
+            MinimumLODDetectionObject mDetection = 
                     estimateMinDetectionCaliPointAcross(peptideRecords, config, logWriter);
             
             int minDetectionCaliPointAcross = mDetection.getMinDetectionCaliPointAcross();
-            HashMap<String,DetectionLevelPriorityQueue> transitionToDetectionQueue = 
+            HashMap<String,LODDetectionLevelsPriorityQueue> transitionToDetectionQueue = 
                     mDetection.getTransitionToDetectionQueue();
             //throw new UnsupportedOperationException("Not yet implemented");
             Set<String> transitions = transitionToDetectionQueue.keySet();
@@ -427,8 +426,8 @@ public class PeptideLODEstimator {
                 }                   
             }else{
                 for(String transition : transitions){
-                    //get the LOD objects at the minDetectionCaliPointAcross
-                    DetectionLevelPriorityQueue tDLQueue = transitionToDetectionQueue.get(transition);
+                    //get the LOD objects at the minLODDetectionCaliPointAcross
+                    LODDetectionLevelsPriorityQueue tDLQueue = transitionToDetectionQueue.get(transition);
                     //int caliPoint;
                     LimitOfDetection lod;
                     do{
@@ -442,23 +441,23 @@ public class PeptideLODEstimator {
         }  
     }
     
-    private class MinimumDetectionObject {
+    private class MinimumLODDetectionObject {
 
-        private int minDetectionCaliPointAcross;
-        private HashMap<String, DetectionLevelPriorityQueue> transitionToDetectionQueue;
+        private int minLODDetectionCaliPointAcross;
+        private HashMap<String, LODDetectionLevelsPriorityQueue> transitionToDetectionQueue;
         
-        public MinimumDetectionObject(int minDetectionCaliPointAcross, 
-                HashMap<String, DetectionLevelPriorityQueue> transitionToDetectionQueue) {
-            this.minDetectionCaliPointAcross = minDetectionCaliPointAcross;
+        public MinimumLODDetectionObject(int minDetectionCaliPointAcross, 
+                HashMap<String, LODDetectionLevelsPriorityQueue> transitionToDetectionQueue) {
+            this.minLODDetectionCaliPointAcross = minDetectionCaliPointAcross;
             this.transitionToDetectionQueue = transitionToDetectionQueue;       
         }
 
-        private HashMap<String, DetectionLevelPriorityQueue> getTransitionToDetectionQueue() {
+        private HashMap<String, LODDetectionLevelsPriorityQueue> getTransitionToDetectionQueue() {
             return transitionToDetectionQueue;
         }
 
         private int getMinDetectionCaliPointAcross() {
-            return minDetectionCaliPointAcross;
+            return minLODDetectionCaliPointAcross;
         }
     }
 
