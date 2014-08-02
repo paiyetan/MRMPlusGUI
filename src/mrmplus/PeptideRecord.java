@@ -257,6 +257,24 @@ public class PeptideRecord {
     }
     
     
+    //These methods are used for accessing values applicable to repeatability assay peptide records... 
+    public String getConcentrationLevel(){
+        String concLevel = null;
+        concLevel = ReplicateName.split("_")[0];
+        return concLevel;
+    }
+    
+    public String getAssayDay(){
+        String day = null;
+        day = ReplicateName.split("_")[1];
+        return day;
+    }
+    
+    public String getDayReplicate(){
+        String replicate = null;
+        replicate = ReplicateName.split("_")[2];
+        return replicate;
+    }
     
     
     

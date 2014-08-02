@@ -4,6 +4,8 @@
  */
 package mrmplus.gui;
 
+import mrmplus.statistics.mappers.ExpIMetadataMapper;
+import mrmplus.statistics.mappers.PeptideToRecordsMapper;
 import ios.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -1106,7 +1108,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
                 long start_time = new Date().getTime();
                 //instantiate a loggerFile
-                String logFile = "./logs" + File.separator + start_time + ".log"; 
+                String logFile = "./logs" + File.separator + start_time + ".response.log"; 
                 //File loggerFile = new File(logFile);
                 PrintWriter logWriter = new PrintWriter(logFile);
 
@@ -1134,7 +1136,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 System.out.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
                 logWriter.println("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
                 publish("Mapping 'replicateName'attribute to 'MRMRunMeta' object...");
-                ExperimentMetadataMapper metadatamapper = new ExperimentMetadataMapper();
+                ExpIMetadataMapper metadatamapper = new ExpIMetadataMapper();
                 HashMap<String, MRMRunMeta> replicateNameToMetadataMap = 
                         metadatamapper.mapReplicateNameToMetadata(metadata);
                 logWriter.println("  " + replicateNameToMetadataMap.keySet().size() + " MRMRunMeta objects found in metadata file...");

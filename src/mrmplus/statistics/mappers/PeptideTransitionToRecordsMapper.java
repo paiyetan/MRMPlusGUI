@@ -2,10 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mrmplus;
+package mrmplus.statistics.mappers;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import mrmplus.PeptideRecord;
 
 /**
  *

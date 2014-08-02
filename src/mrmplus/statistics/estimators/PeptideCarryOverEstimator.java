@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideRecord;
-import mrmplus.PeptideTransitionToRecordsMapper;
+import mrmplus.statistics.mappers.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.resultobjects.CarryOver;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;

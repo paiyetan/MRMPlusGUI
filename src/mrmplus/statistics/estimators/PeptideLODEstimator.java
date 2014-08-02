@@ -4,6 +4,7 @@
  */
 package mrmplus.statistics.estimators;
 
+import mrmplus.statistics.mappers.ExpICalibrationPointToRecordsMapper;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideRecord;
-import mrmplus.PeptideTransitionToRecordsMapper;
+import mrmplus.statistics.mappers.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideRecordsType;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.resultobjects.DetectionLevelPriorityQueue;
@@ -342,8 +343,8 @@ public class PeptideLODEstimator {
                 DetectionLevelPriorityQueue dLPQueue = new DetectionLevelPriorityQueue(transitionPreCurveDerivedLOD);
 
                 // map calibration points to records (which are repectively from the [three] replicates)
-                ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
-                                        new ExperimentCalibrationPointToRecordsMapper();
+                ExpICalibrationPointToRecordsMapper pointToRecordsMapper = 
+                                        new ExpICalibrationPointToRecordsMapper();
                 HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
                                         pointToRecordsMapper.mapCalibrationPointsToRecords(transitionRecords);
 

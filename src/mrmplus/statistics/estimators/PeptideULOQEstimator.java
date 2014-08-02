@@ -4,12 +4,14 @@
  */
 package mrmplus.statistics.estimators;
 
+import mrmplus.statistics.mappers.ExpIReplicateToRecordsMapper;
+import mrmplus.statistics.mappers.ExpICalibrationPointToRecordsMapper;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideRecord;
-import mrmplus.PeptideTransitionToRecordsMapper;
+import mrmplus.statistics.mappers.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.resultobjects.CoefficientOfVariation;
 import mrmplus.statistics.resultobjects.UpperLimitOfQuantification;
@@ -55,8 +57,8 @@ public class PeptideULOQEstimator {
                     // N.B. For each transition, there are a number of conc. measures (caliberation pointa) for which 
                     // three replicates were performed at each point...
                     // map calibration points to records (which are repectively from the [three] replicates)
-                    ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
-                            new ExperimentCalibrationPointToRecordsMapper();
+                    ExpICalibrationPointToRecordsMapper pointToRecordsMapper = 
+                            new ExpICalibrationPointToRecordsMapper();
                     HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
                             pointToRecordsMapper.mapCalibrationPointsToRecords(transitionRecords);
                     logWriter.println("     to transition " + transition + ", " + caliPointToRecords.keySet().size() + 
@@ -118,8 +120,8 @@ public class PeptideULOQEstimator {
                 // Group records by concentration point (s)
                 logWriter.println("    computing summed transition(s) associated ULOQ estimation...");
                 System.out.println("    computing summed transition(s) associated ULOQ estimation...");
-                ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
-                            new ExperimentCalibrationPointToRecordsMapper();
+                ExpICalibrationPointToRecordsMapper pointToRecordsMapper = 
+                            new ExpICalibrationPointToRecordsMapper();
                 logWriter.println("    mapping records to respective calibration point...");
                 System.out.println("    mapping records to respective calibration point...");
                 HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
@@ -137,7 +139,7 @@ public class PeptideULOQEstimator {
                     // group records (calibration point mapped records) by replicate
                     logWriter.println("       mapping calibration point records to replicateId...");
                     System.out.println("       mapping calibration point records to replicateId...");
-                    ExperimentReplicateToRecordsMapper rep2recMap = new ExperimentReplicateToRecordsMapper();
+                    ExpIReplicateToRecordsMapper rep2recMap = new ExpIReplicateToRecordsMapper();
                     HashMap<String, LinkedList<PeptideRecord>> replicate2RecordsMap = 
                             rep2recMap.mapReplicatesToRecords(caliPointMappedRecords);
                     // expectedly at this stage each replicate record should contain only values from point's associated transitions

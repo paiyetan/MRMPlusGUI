@@ -4,13 +4,14 @@
  */
 package mrmplus.statistics.estimators;
 
+import mrmplus.statistics.mappers.ExpICalibrationPointToRecordsMapper;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import mrmplus.PeptideRecord;
 import mrmplus.PeptideResult;
-import mrmplus.PeptideTransitionToRecordsMapper;
+import mrmplus.statistics.mappers.PeptideTransitionToRecordsMapper;
 import mrmplus.enums.PeptideResultOutputType;
 import mrmplus.statistics.resultobjects.CoefficientOfVariation;
 import mrmplus.statistics.resultobjects.LowerLimitOfQuantification;
@@ -80,8 +81,8 @@ public class PeptideSpecificityPartialValidator {
                     // N.B. For each transition, there are a number of conc. measures (caliberation points) for which 
                     // three replicates were performed at each point...
                     // map calibration points to records (which are repectively from the [three] replicates)
-                    ExperimentCalibrationPointToRecordsMapper pointToRecordsMapper = 
-                            new ExperimentCalibrationPointToRecordsMapper();
+                    ExpICalibrationPointToRecordsMapper pointToRecordsMapper = 
+                            new ExpICalibrationPointToRecordsMapper();
                     HashMap<String,LinkedList<PeptideRecord>> caliPointToRecords = 
                             pointToRecordsMapper.mapCalibrationPointsToRecords(transitionRecords);
                     

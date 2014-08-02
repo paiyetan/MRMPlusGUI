@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mrmplus.statistics.estimators;
+package mrmplus.statistics.mappers;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import mrmplus.PeptideRecord;
  *
  * @author paiyeta1
  */
-public class ExperimentReplicateToRecordsMapper {
+public class ExpIReplicateToRecordsMapper {
 
     public HashMap<String, LinkedList<PeptideRecord>> mapReplicatesToRecords(LinkedList<PeptideRecord> peptideRecords) {
         

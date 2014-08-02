@@ -38,7 +38,7 @@ public class InputFileReader {
     public LinkedList<PeptideRecord> readInputFile(String inputFile, HashMap<String, String> config,
                                                         PrintWriter logWriter) throws FileNotFoundException, IOException{
         LinkedList<PeptideRecord> peptideRecords = new LinkedList<PeptideRecord>();
-        BufferedReader input = new BufferedReader(new FileReader(new File(inputFile)));        
+        BufferedReader reader = new BufferedReader(new FileReader(new File(inputFile)));        
 
         int lines_read = 0;
         String line;
@@ -47,10 +47,10 @@ public class InputFileReader {
         int dataRows = computeDataRows(config, logWriter);
         System.out.println(" Reading " + dataRows + " data records of peptides to evaluate..." );
         logWriter.println(" Reading " + dataRows + " data records of peptides to evaluate...");
-        while ((line = input.readLine()) != null) {
+        while ((line = reader.readLine()) != null) {
             lines_read++;
             if (lines_read == 1){
-                // get the attributes reported for input file
+                // get the attributes reported for reader file
                 String[] lineContent = line.split("\t");
                 fileAttrIndeces = new FileAttributeIndex[lineContent.length];
                 // get the indeces for the reported attributes
@@ -88,6 +88,7 @@ public class InputFileReader {
                 }
             }
         }
+        reader.close();
         logWriter.println("  " + peptideRecords.size() + " peptide records read...");
         return peptideRecords;
     }  

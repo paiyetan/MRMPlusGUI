@@ -476,7 +476,14 @@ public class PeptideQCEstimator {
             }
             
         }
- 
+        
+        
+        // computing values for experiment 2 (mini-validation of repeatability....
+        if(config.get("miniValidateRepeatability").equalsIgnoreCase("TRUE")){
+             PeptideRepeatabilityMiniValidator prmValidator = new PeptideRepeatabilityMiniValidator();
+             prmValidator.validateRepeatability(config);
+        }
+
         return peptideQCEstimates;
     }
    
