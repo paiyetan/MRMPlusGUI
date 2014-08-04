@@ -5,6 +5,7 @@
 package mrmplus.statistics;
 
 import ios.Logger;
+import ios.RepeatabilityEstimatesPrinter;
 import ios.RepeatabilityInputFileReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -117,13 +118,14 @@ public class PeptideRepeatabilityMiniValidator {
                 // intantiate an ExpIIMiniValidationOfRepeatabilityResult object;
                 ExpIIMiniValidationOfRepeatabilityResult miniValidationOfRepeatabilityResult = 
                        new ExpIIMiniValidationOfRepeatabilityResult(peptideSequence); 
+                
                 miniValidationOfRepeatabilityResult.setSubIdsToConcLevelsCoefficientsMap(subIdsToConcLevelsCoefsMap);
                 peptideRepeatabilityValidationResultMap.put(peptideSequence, miniValidationOfRepeatabilityResult);
             
-            }
-            
-            
+            }           
             //print output results...
+            RepeatabilityEstimatesPrinter printer = new RepeatabilityEstimatesPrinter();
+            printer.printMRMPlusRepeatabilityEstimates(peptideRepeatabilityValidationResultMap, config);
             
             
             

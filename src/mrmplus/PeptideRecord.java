@@ -57,6 +57,9 @@ public class PeptideRecord {
     //values from dilution file.
     private double dilution = 0; // typically equivalent to the spikedInConcenteration
                                  // should the peptide record not be a blank, it'll be updated by the setDilution method call.
+    
+    //Experiment II variables....
+    //private String concentrationLevel;
 
     public PeptideRecord(String PeptideSequence, 
                             String ReplicateName, 
@@ -276,6 +279,10 @@ public class PeptideRecord {
         return replicate;
     }
     
+    //for experiment II compatibility...
+    public void setReplicateName(String replicateName){
+        this.ReplicateName = replicateName;
+    }
     
     
     

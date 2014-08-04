@@ -4,8 +4,14 @@
  */
 package mrmplus.statistics.estimators;
 
+import ios.Logger;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 import mrmplus.PeptideRecord;
+import mrmplus.statistics.mappers.ExpIIConcLevelToRecordsMapper;
+import mrmplus.statistics.mappers.ExpIIDayToRecordsMapper;
+import mrmplus.statistics.mappers.ExpIIReplicateToRecordsMapper;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.summary.Sum;
 
@@ -14,6 +20,58 @@ import org.apache.commons.math3.stat.descriptive.summary.Sum;
  * @author paiyeta1
  */
 public class PeptideRecordsSummer {
+    
+    
+    public LinkedList<PeptideRecord> sumPeptideRecords(LinkedList<PeptideRecord> peptideRecords,
+                                                        String experimentType,
+                                                        Logger logger){
+        
+        // derived a new PeptideRecords list of summed transition values...
+        LinkedList<PeptideRecord> summedtransitionPeptideRecords = 
+                new LinkedList<PeptideRecord>();
+        //map concentationLevel to peptide records
+        ExpIIConcLevelToRecordsMapper eIIcLMapper = new ExpIIConcLevelToRecordsMapper();
+        HashMap<String, LinkedList<PeptideRecord>> concLevelToRecordsMap = 
+                eIIcLMapper.mapExperimentConcLevelToRecords(peptideRecords);
+        Set<String> concLevels = concLevelToRecordsMap.keySet();
+        //for each concentration level, 
+        for(String concLevel : concLevels){
+            //get concentration level mapped records...
+            LinkedList<PeptideRecord> concLevelMappedRecords = concLevelToRecordsMap.get(concLevel);
+            //map experiment day to peptide records
+            ExpIIDayToRecordsMapper exIIdRMapper = new ExpIIDayToRecordsMapper();
+            HashMap<String, LinkedList<PeptideRecord>> concLevelDayToRecordsMap = 
+                    exIIdRMapper.mapExperimentDayToRecords(concLevelMappedRecords);
+            Set<String> days = concLevelDayToRecordsMap.keySet();
+            //for each experiment day, 
+            for(String day : days){
+                //get the day mapped peptides
+                LinkedList<PeptideRecord> concLevelDayMappedRecords = concLevelDayToRecordsMap.get(day);
+                //map replicate to peptide records
+                ExpIIReplicateToRecordsMapper exIIrRMapper = new ExpIIReplicateToRecordsMapper();
+                HashMap<String, LinkedList<PeptideRecord>> concLevelDayReplicateToRecordsMap = 
+                        exIIrRMapper.mapReplicateToRecords(concLevelDayMappedRecords); //NB: at this stage there should be records 
+                                                                                       //mapping to each replicate-Id, each record 
+                                                                                       //representing a transition.
+                Set<String> replicateIds = concLevelDayReplicateToRecordsMap.keySet();
+                //for each replicate, 
+                for(String replicateId : replicateIds){
+                    //get replicate mapped peptide records...
+                    LinkedList<PeptideRecord> replicateMappedRecords = concLevelDayReplicateToRecordsMap.get(replicateId);
+                    ////sum its peptide records...
+                    PeptideRecord summedPeptideRecord = sumPeptideRecords(replicateMappedRecords);
+                    // update replicateName
+                    summedPeptideRecord.setReplicateName(replicateMappedRecords.getFirst().getReplicateName());
+                    // add derived sumed-peptide record to summedtransitionPeptideRecord list  
+                    summedtransitionPeptideRecords.add(summedPeptideRecord);                   
+                }
+                
+            }
+        
+        }
+        
+        return summedtransitionPeptideRecords;
+    }
 
     /*
      * Sums the peak areas of given PeptideRecords..
