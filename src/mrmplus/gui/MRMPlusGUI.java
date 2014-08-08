@@ -25,6 +25,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import mrmplus.*;
 import mrmplus.statistics.PeptideQCEstimator;
+import mrmplus.statistics.PeptideRepeatabilityMiniValidator;
+import mrmplus.statistics.resultobjects.experimentii.ExpIIMiniValidationOfRepeatabilityResult;
 import utilities.OneFileChooser;
 import utilities.OutputDirChooser;
 
@@ -56,25 +58,38 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         // set default configs, if configFile isn't null.
         if(this.config != null){
             /*
-             * header=TRUE
-                preprocessedFile=./etc/projects/mrmplus/data/preprocessed.txt
-                metadataFile=./etc/projects/mrmplus/data/metadata.txt
-                dilutionFile=./etc/projects/mrmplus/data/dilution.txt
-                peptidesMonitored=43
-                noOftransitions=3
-                preCurveBlanks=3
-                totalBlanks=9
-                replicates=3
-                serialDilutions=7
-                computeLOD=TRUE
-                computeLLOQ=FALSE
-                fitCurve=FALSE
-                computeLinearity=FALSE
-                computeCarryOver=FALSE
-                computePartialValidationOfSpecificity=FALSE
-                computeULOQ=FALSE
-                outputDirectory=./etc/projects/mrmplus/text
-                peptidesResultsOutputted=BOTH
+             #General
+            logRun=TRUE
+            peptidesResultsOutputted=BOTH
+            outputDirectory=./etc/projects/mrmplus/text
+            #Experiment_01
+            header=TRUE
+            preprocessedFile=./etc/projects/mrmplus/data/exp_01/preprocessedResponseData.txt
+            metadataFile=./etc/projects/mrmplus/data/exp_01/preprocessedResponseData.txt
+            dilutionFile=./etc/projects/mrmplus/data/exp_01/dilution.txt
+            peptidesMonitored=43
+            noOftransitions=3
+            preCurveBlanks=3
+            totalBlanks=9
+            replicates=3
+            serialDilutions=7
+            computeLOD=TRUE
+            computeLLOQ=TRUE
+            computeLinearity=FALSE
+            computeCarryOver=FALSE
+            computePartialValidationOfSpecificity=FALSE
+            computeULOQ=FALSE
+            #Experiment_02
+            computeMiniValidationOfRepeatability=FALSE
+            preprocessedRepeatabilityData=./etc/projects/mrmplus/data/exp_02/preprocessedRepeatabilityData.txt
+            repeatabilityNoOftransitions=3
+            repeatabilityNoOfPeptidesMonitored=43
+            repeatabiliityNoOfConcentrationLevels=3
+            repeatabilityOverNoOfDays=5
+            repeatabilityNoOfReplicatesPerDay=3
+            #repeatValidationOfLLOQ=TRUE
+            #repeatPartialValidationOfSpecificity=TRUE
+            #printDetailedRepeatabilityComputation=FALSE
              *  
              */ 
             
@@ -89,8 +104,6 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             jTextField9.setText(this.config.get("replicates"));// replicates
             jTextField10.setText(this.config.get("serialDilutions"));// serial dilutions...
             
-            
-            
             jComboBox1.setSelectedItem(this.config.get("computeLOD").toUpperCase());//LOD
             jComboBox2.setSelectedItem(this.config.get("computeLLOQ").toUpperCase());//LLoQ
             //jComboBox3.setSelectedItem(this.config.get("fitCurve").toUpperCase());//FitCurve
@@ -100,6 +113,20 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             jComboBox7.setSelectedItem(this.config.get("computeULOQ").toUpperCase());//ULoQ
             jComboBox8.setSelectedItem(this.config.get("peptidesResultsOutputted").toUpperCase());//OutputResultType
             jComboBox9.setSelectedItem(this.config.get("logRun").toUpperCase());//LogRun
+            
+            
+            //repeatability values...
+            jComboBox3.setSelectedItem(this.config.get("computeMiniValidationOfRepeatability").toUpperCase()); // Estimate repeatability TRUE/FALSE
+            
+            jTextField12.setText(this.config.get("preprocessedRepeatabilityData"));// input file for experiment II
+            jTextField13.setText(this.config.get("repeatabilityNoOftransitions"));// rpt no of transitions monitored
+            jTextField14.setText(this.config.get("repeatabilityNoOfPeptidesMonitored"));// rpt no of peptides monitores
+            jTextField15.setText(this.config.get("repeatabiliityNoOfConcentrationLevels"));// rpt no of concentration levels  
+            jTextField16.setText(this.config.get("repeatabilityOverNoOfDays"));// rpt no of Days
+            jTextField17.setText(this.config.get("repeatabilityNoOfReplicatesPerDay"));// rpt no of replicates per day
+            
+            
+            
          
         }
     }
@@ -124,6 +151,28 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         config.put("computeULOQ", (String) jComboBox7.getSelectedItem());
         config.put("peptidesResultsOutputted", (String) jComboBox8.getSelectedItem());
         config.put("logRun",(String) jComboBox9.getSelectedItem());
+        
+        //experiment II
+        /*
+        #Experiment_02
+        computeMiniValidationOfRepeatability=FALSE
+        preprocessedRepeatabilityData=./etc/projects/mrmplus/data/exp_02/preprocessedRepeatabilityData.txt
+        repeatabilityNoOftransitions=3
+        repeatabilityNoOfPeptidesMonitored=43
+        repeatabiliityNoOfConcentrationLevels=3
+        repeatabilityOverNoOfDays=5
+        repeatabilityNoOfReplicatesPerDay=3
+        * 
+        */
+        config.put("computeMiniValidationOfRepeatability",(String) jComboBox3.getSelectedItem());
+        
+        config.put("preprocessedRepeatabilityData", jTextField12.getText());
+        config.put("repeatabilityNoOftransitions", jTextField13.getText());
+        config.put("repeatabilityNoOfPeptidesMonitored", jTextField14.getText());
+        config.put("repeatabiliityNoOfConcentrationLevels", jTextField15.getText());
+        config.put("repeatabilityOverNoOfDays", jTextField16.getText());
+        config.put("repeatabilityNoOfReplicatesPerDay", jTextField17.getText());
+        
     }
     
     
@@ -162,6 +211,25 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         jComboBox9 = new javax.swing.JComboBox();
         jPanel8 = new javax.swing.JPanel();
         jButton12 = new javax.swing.JButton();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel13 = new javax.swing.JLabel();
+        jComboBox3 = new javax.swing.JComboBox();
+        jLabel21 = new javax.swing.JLabel();
+        jTextField12 = new javax.swing.JTextField();
+        jButton15 = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jTextField13 = new javax.swing.JTextField();
+        jTextField14 = new javax.swing.JTextField();
+        jTextField15 = new javax.swing.JTextField();
+        jLabel25 = new javax.swing.JLabel();
+        jTextField16 = new javax.swing.JTextField();
+        jLabel26 = new javax.swing.JLabel();
+        jTextField17 = new javax.swing.JTextField();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
         jLabel20 = new javax.swing.JLabel();
         jDialog2 = new javax.swing.JDialog();
         jPanel9 = new javax.swing.JPanel();
@@ -223,36 +291,34 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
         jButton11.setText("jButton11");
 
-        jDialog1.setMaximumSize(new java.awt.Dimension(306, 410));
-        jDialog1.setMinimumSize(new java.awt.Dimension(306, 410));
+        jDialog1.setMinimumSize(new java.awt.Dimension(529, 704));
         jDialog1.setModal(true);
-        jDialog1.setPreferredSize(new java.awt.Dimension(306, 410));
-        jDialog1.setResizable(false);
+        jDialog1.setPreferredSize(new java.awt.Dimension(529, 704));
 
         jPanel7.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel11.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel11.setText("Compute LOD:");
 
-        jLabel12.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel12.setText("Compute LLOQ:");
 
-        jLabel14.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setText("Compute Linearity:");
 
-        jLabel15.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel15.setText("Compute Carry-0ver:");
 
-        jLabel16.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel16.setText("Partially Validate Specificity:");
 
-        jLabel17.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel17.setText("Compute ULOQ:");
 
-        jLabel18.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel18.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel18.setText("Peptide Result Outputs:");
 
-        jLabel19.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel19.setText("Log Run:");
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TRUE", "FALSE" }));
@@ -276,7 +342,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(46, 46, 46)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -289,16 +355,16 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jComboBox2, 0, 103, Short.MAX_VALUE)
-                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jComboBox4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jComboBox5, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jComboBox9, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox8, javax.swing.GroupLayout.Alignment.LEADING, 0, 103, Short.MAX_VALUE)
+                        .addComponent(jComboBox8, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jComboBox7, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox6, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(168, 168, 168))
+                        .addComponent(jComboBox6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(132, 132, 132))
         );
 
         jPanel7Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jComboBox1, jComboBox2, jComboBox4, jComboBox5, jComboBox6, jComboBox7, jComboBox8, jComboBox9});
@@ -338,7 +404,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
                     .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         jPanel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -368,6 +434,138 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
+        jPanel10.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel13.setText("Estimate Repeatability:");
+
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "FALSE", "TRUE" }));
+
+        jLabel21.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel21.setText("Input File: ");
+
+        jTextField12.setText("jTextField12");
+
+        jButton15.setText("BROWSE");
+        jButton15.setAlignmentY(0.0F);
+        jButton15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton15ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jLabel21)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton15)))
+                .addGap(18, 18, 18))
+        );
+
+        jPanel10Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButton15, jComboBox3});
+
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel21)
+                    .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton15))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel11.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel22.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel22.setText("Rpt. No Of Transitions:");
+
+        jLabel23.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel23.setText("Rpt. No Of Monitored Peptides:");
+
+        jLabel24.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel24.setText("Rpt. No Of Conc. Level:");
+
+        jTextField13.setText("jTextField13");
+
+        jTextField14.setText("jTextField14");
+
+        jTextField15.setText("jTextField15");
+
+        jLabel25.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel25.setText("Rpt. No Of Days:");
+
+        jTextField16.setText("jTextField16");
+
+        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel26.setText("Rpt. No Of Daily Replicates:");
+
+        jTextField17.setText("jTextField17");
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(69, 69, 69)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel22, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel23, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel24, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel25, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel26, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(96, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel22)
+                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel23)
+                    .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel24)
+                    .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel25)
+                    .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel26)
+                    .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
         jDialog1Layout.setHorizontalGroup(
@@ -375,10 +573,12 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             .addGroup(jDialog1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jDialog1Layout.createSequentialGroup()
-                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                    .addComponent(jSeparator2)
+                    .addComponent(jSeparator1)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jDialog1Layout.setVerticalGroup(
@@ -386,9 +586,17 @@ public class MRMPlusGUI extends javax.swing.JFrame {
             .addGroup(jDialog1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(75, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jLabel20.setText("jLabel20");
@@ -946,6 +1154,18 @@ public class MRMPlusGUI extends javax.swing.JFrame {
         System.exit(1);
     }//GEN-LAST:event_jButton13ActionPerformed
 
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+        // TODO add your handling code here:
+        // Experiment II input file chooser 
+        // Select preprocessed file...
+        OneFileChooser chooser = new OneFileChooser("Select Repeatability Experiment preprocessed file...", currentDir);
+        if(chooser.getInputFile() != null){
+            String input = chooser.getInputFile();
+            jTextField12.setText(input);
+            currentDir = new File(input).getParent(); // keep track of last directory...           
+        }    
+    }//GEN-LAST:event_jButton15ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1003,6 +1223,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
+    private javax.swing.JButton jButton15;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -1013,6 +1234,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
+    private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JComboBox jComboBox5;
     private javax.swing.JComboBox jComboBox6;
@@ -1025,6 +1247,7 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -1033,6 +1256,12 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1041,6 +1270,8 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1051,10 +1282,18 @@ public class MRMPlusGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
+    private javax.swing.JTextField jTextField12;
+    private javax.swing.JTextField jTextField13;
+    private javax.swing.JTextField jTextField14;
+    private javax.swing.JTextField jTextField15;
+    private javax.swing.JTextField jTextField16;
+    private javax.swing.JTextField jTextField17;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
@@ -1108,7 +1347,8 @@ public class MRMPlusGUI extends javax.swing.JFrame {
 
                 long start_time = new Date().getTime();
                 //instantiate a loggerFile
-                String logFile = "./logs" + File.separator + start_time + ".response.log"; 
+                String outputId = String.valueOf(start_time);
+                String logFile = "." + File.separator + "logs" + File.separator + outputId + ".response.log"; 
                 //File loggerFile = new File(logFile);
                 PrintWriter logWriter = new PrintWriter(logFile);
 
@@ -1176,7 +1416,11 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 pepToRecordsMap = mapper.mapPeptideToRecord(peptideRecords);
                 setProgress(40);
 
-                //compute statistics results...
+                // ------ Compute statistics/results ------ // 
+                
+                // **************************************** //
+                //              Experiment I....
+                // **************************************** //
                 System.out.println("Estimating MRMPlus QCs...");
                 logWriter.println("Estimating MRMPlus QCs...");
                 publish("Estimating MRMPlus QCs...");
@@ -1191,9 +1435,26 @@ public class MRMPlusGUI extends javax.swing.JFrame {
                 logWriter.println("Printing MRMPlus QC estimates...");
                 publish("Printing MRMPlus QC estimates...");
                 QCEstimatesPrinter printer = new QCEstimatesPrinter();
-                printer.printMRMPlusEstimates(peptideQCEstimates, configFile);
+                printer.printMRMPlusEstimates(peptideQCEstimates, configFile, outputId);
                 setProgress(90);
-
+                
+                // **************************************** //
+                //              Experiment II
+                // **************************************** //
+        
+                // computing values for experiment 2 (mini-validation of repeatability....
+                if(configFile.get("computeMiniValidationOfRepeatability").equalsIgnoreCase("TRUE")){
+                    publish("Validating repeatability...");
+                    PeptideRepeatabilityMiniValidator prmValidator = new PeptideRepeatabilityMiniValidator();
+                    HashMap<String, ExpIIMiniValidationOfRepeatabilityResult> peptideRepeatabilityValidationResultMap = 
+                            prmValidator.validateRepeatability(configFile, outputId);
+                    
+                    //print output results...
+                    setProgress(95);
+                    publish("Printing repeatability...");
+                    RepeatabilityEstimatesPrinter rprinter = new RepeatabilityEstimatesPrinter();
+                    rprinter.printMRMPlusRepeatabilityEstimates(peptideRepeatabilityValidationResultMap, configFile, outputId);    
+                }
 
                 System.out.println("...Done!!!");
                 logWriter.println("...Done!!!");

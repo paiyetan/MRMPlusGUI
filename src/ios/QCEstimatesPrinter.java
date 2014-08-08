@@ -20,11 +20,14 @@ import mrmplus.statistics.resultobjects.*;
 public class QCEstimatesPrinter {
 
     public void printMRMPlusEstimates(HashMap<String, LinkedList<PeptideResult>> peptideQCEstimates, 
-            HashMap<String, String> config) throws FileNotFoundException {
+                                            HashMap<String, String> config,
+                                                String outputId) 
+                throws FileNotFoundException {
         //throw new UnsupportedOperationException("Not yet implemented");
-        String inputFile = config.get("preprocessedFile");
+        //String inputFile = config.get("preprocessedFile");
         String outputDir = config.get("outputDirectory");
-        String outputFileName = new File(inputFile).getName().replace(".txt", "") + ".mrmplus";
+        //String outputFileName = new File(inputFile).getName().replace(".txt", "") + ".mrmplus";
+        String outputFileName = outputId + ".response.mrmplus";
         String outputFile = outputDir + File.separator + outputFileName;
         
         PrintWriter printer = new PrintWriter(outputFile);

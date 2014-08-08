@@ -21,10 +21,12 @@ public class ConfigurationFileReader {
         BufferedReader reader = new BufferedReader(new FileReader(configFile));
         String line;
         while((line = reader.readLine())!=null){
-            String[] lineArr = line.split("=");
-            String key = lineArr[0];
-            String value = lineArr[1];
-            config.put(key, value);
+            if(line.charAt(0)!='#'){
+                String[] lineArr = line.split("=");
+                String key = lineArr[0];
+                String value = lineArr[1];
+                config.put(key, value);
+            }
         }
         return config;
     }

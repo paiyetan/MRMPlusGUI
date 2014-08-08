@@ -46,29 +46,41 @@ public class ExpIIConcLevelCoefficientOfVariation {
     }
     
     private void setDailyRecordsMap(LinkedList<PeptideRecord> concLevelPeptideRecords, Logger logger) {
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " day to associated records map...");
         ExpIIDayToRecordsMapper dayToRecordsMapper = new ExpIIDayToRecordsMapper();
         dayToRecordsMap = dayToRecordsMapper.mapExperimentDayToRecords(concLevelPeptideRecords);
+        logger.println("                 " + dayToRecordsMap.size() + " days found...");
+        
     }
 
     private void setDailyCoefficientOfVariationsMap(Logger logger) {
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " day to associated CV map...");
         dayToCVMap = new HashMap<String, Double>();
         Set<String> days = dayToRecordsMap.keySet();
+        logger.println("               Daily CVs: ");
         for(String day : days){
+            logger.println("                Day: " + day);
             LinkedList<PeptideRecord> dayMappedRecords = dayToRecordsMap.get(day);
+            logger.println("                  Number of mapped records: " + dayMappedRecords.size());
             double coef = computeCV(dayMappedRecords);
+            logger.println("                  Estimated Coeficient of variation: " + coef);
             dayToCVMap.put(day, coef);
         }
     }
     
     private void setReplicateToRecordsMap(LinkedList<PeptideRecord> concLevelPeptideRecords, Logger logger) {
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " replicate to associated records map...");
         //throw new UnsupportedOperationException("Not yet implemented");
         ExpIIReplicateToRecordsMapper expIIRToRecordsMapper = new ExpIIReplicateToRecordsMapper();
-        replicateToRecordsMap = expIIRToRecordsMapper.mapReplicateToRecords(concLevelPeptideRecords);       
+        replicateToRecordsMap = expIIRToRecordsMapper.mapReplicateToRecords(concLevelPeptideRecords); 
+        logger.println("                 " + replicateToRecordsMap.size() + " replicates found...");
+        
     }
    
     private void computeIntraAssayCV(Logger logger) {
         // throw new UnsupportedOperationException("Not yet implemented");
         // described as average of CVs determined for each of the days.
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " intraAssay CV");
         Set<String> days = dayToCVMap.keySet();
         LinkedList<Double> coefs = new LinkedList<Double>();
         for(String day : days){
@@ -85,6 +97,7 @@ public class ExpIIConcLevelCoefficientOfVariation {
     }
 
     private void computeInterAssayCV(Logger logger) {
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " interAssay CV");
         // as described, this is calculated at each concentration by determining CV of first injection (i.e. replicate,
         // across the number of days, then the second injection, etc...
         // these CVs are averaged.
@@ -106,6 +119,7 @@ public class ExpIIConcLevelCoefficientOfVariation {
     }
 
     private void computeTotalAssayCV(Logger logger) {
+        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " totalAssay CV");
         //throw new UnsupportedOperationException("Not yet implemented");
         // described as the square-root of the sum of (the average intra-assay CV)^2 and 
         // (the average inter-assay CV)^2.

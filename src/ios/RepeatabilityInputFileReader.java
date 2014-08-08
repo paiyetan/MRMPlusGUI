@@ -133,7 +133,8 @@ public class RepeatabilityInputFileReader {
         logger.println("\n");
         
         // compute data rows
-        dataRows = (((replicatesPerDay * noOfDays) * concentrationLevels) * transitions) * peptidesMonitored;       
+        dataRows = (((replicatesPerDay * noOfDays) * concentrationLevels) * transitions) * peptidesMonitored;   
+        logger.println(" Estimated Peptide Records: " + dataRows);
         return dataRows;
     }
      

@@ -41,11 +41,18 @@ public class ExpIIMiniValidationOfRepeatabilityResult {
     }
     
     public ExpIIMiniValidationOfRepeatabilityResult(String peptideSequence,
-                                HashMap<String, ExpIIValidationIdAndConcLevelsCoefs> subIdsToConcLevelsCoefsMap){
+                                HashMap<String, ExpIIValidationIdAndConcLevelsCoefs> subIdsToConcLevelsCoefsMap, 
+                                Logger logger){
         this.peptideSequence = peptideSequence;
         this.subIdsToConcLevelsCoefsMap = subIdsToConcLevelsCoefsMap;
-        setValidatedLLOQMap();
-        setPartialValidationOfSpecificityMap();
+        logger.print("   " + peptideSequence + " associated subIds: ");
+        Set<String> subIds = subIdsToConcLevelsCoefsMap.keySet();
+        for(String subId : subIds){
+            logger.print(subId + " ");
+        }
+        logger.print("\n");
+        setValidatedLLOQMap(logger);
+        setPartialValidationOfSpecificityMap(logger);
     }
 
     public void setSubIdsToConcLevelsCoefficientsMap(HashMap<String, ExpIIValidationIdAndConcLevelsCoefs> subIdsToConcLevelsCoefsMap) {
@@ -55,7 +62,7 @@ public class ExpIIMiniValidationOfRepeatabilityResult {
     /*
      * Lowest of three concentrations at which total estimated variability is < 20%
      */
-    private void setValidatedLLOQMap() {
+    private void setValidatedLLOQMap(Logger logger) {
         
         subIdsToValidatedLLOQMap = new HashMap<String, ExpIIPeptideValidatedLLOQ>();
         
@@ -93,7 +100,7 @@ public class ExpIIMiniValidationOfRepeatabilityResult {
         }
     }
 
-    private void setPartialValidationOfSpecificityMap() {
+    private void setPartialValidationOfSpecificityMap(Logger logger) {
         //throw new UnsupportedOperationException("Not yet implemented");
         subIdsToPartialValidationOfSpecMap = new HashMap<String, ExpIIPeptidePartialValidationOfSpecificity>();
         //throw new UnsupportedOperationException("Not yet implemented");
@@ -103,38 +110,43 @@ public class ExpIIMiniValidationOfRepeatabilityResult {
         for(String subId : subIds){
             
             ExpIIPeptidePartialValidationOfSpecificity subIdPartialValidation = null;
-            //extract/get associated concLevelToCoeffficientsMap
-            ExpIIValidationIdAndConcLevelsCoefs valIdNConcLevelCoefs =  subIdsToConcLevelsCoefsMap.get(subId);
-            HashMap<String, ExpIIConcLevelCoefficientOfVariation> concLevelToCoeffficientsMap = 
-                    valIdNConcLevelCoefs.getConcLevelToCoeffficientsMap();
-            
-            Set<String> concLevels = concLevelToCoeffficientsMap.keySet();
-            //double maxDeviationValue = -1;
-            //get the ExpIIConcLevelCoefficientOfVariation   
-            //for each transition/subId associated/mapped concLevel, get the mapped ExpIIConcLevelCoefficientOfVariation object,
-            ExpIIPartialValidationDeviation maxDeviationObject = null;
-            concentrationLevel:
-            for(String concLevel : concLevels){
-                ExpIIConcLevelCoefficientOfVariation concLevelCVsObject = concLevelToCoeffficientsMap.get(concLevel);
-                HashMap<String, LinkedList<PeptideRecord>> dayToRecordsMap = concLevelCVsObject.getDayToRecordsMap();
-                Set<String> days = dayToRecordsMap.keySet();
-                //get PeptideRecords for each day and
-                //compute deviation
-                for(String day : days){
-                    LinkedList<PeptideRecord> dailyPeptideRecords = dayToRecordsMap.get(day);
-                    ExpIIPartialValidationDeviation deviation = computeDeviation(dailyPeptideRecords);
-                    deviation.setDay(day);
-                    deviation.setConcentrationLevel(concLevel);
-                    if(maxDeviationObject == null){
-                        //assign the first computation of Deviation to maxDeviationObject
-                        maxDeviationObject = deviation;                      
-                    }else if(maxDeviationObject.getDeviation() < deviation.getDeviation()){
-                        maxDeviationObject = deviation; 
-                    }
-                }               
-            }            
-            subIdPartialValidation = new ExpIIPeptidePartialValidationOfSpecificity(maxDeviationObject);
-            subIdsToPartialValidationOfSpecMap.put(subId, subIdPartialValidation);           
+            // NOTE: Partial validation of specificity estimation only apply to transitions thus for subId "SUMMED" associated
+            // values/variables should be set to null or "NA" where apppriate... 
+            if(subId.equalsIgnoreCase("SUMMED")==false){
+                //extract/get associated concLevelToCoeffficientsMap
+                ExpIIValidationIdAndConcLevelsCoefs valIdNConcLevelCoefs =  subIdsToConcLevelsCoefsMap.get(subId);
+                HashMap<String, ExpIIConcLevelCoefficientOfVariation> concLevelToCoeffficientsMap = 
+                        valIdNConcLevelCoefs.getConcLevelToCoeffficientsMap();
+
+                Set<String> concLevels = concLevelToCoeffficientsMap.keySet();
+                //double maxDeviationValue = -1;
+                //get the ExpIIConcLevelCoefficientOfVariation   
+                //for each transition/subId associated/mapped concLevel, get the mapped ExpIIConcLevelCoefficientOfVariation object,
+                ExpIIPartialValidationDeviation maxDeviationObject = null;
+                concentrationLevel:
+                for(String concLevel : concLevels){
+                    ExpIIConcLevelCoefficientOfVariation concLevelCVsObject = concLevelToCoeffficientsMap.get(concLevel);
+                    HashMap<String, LinkedList<PeptideRecord>> dayToRecordsMap = concLevelCVsObject.getDayToRecordsMap();
+                    Set<String> days = dayToRecordsMap.keySet();
+                    //get PeptideRecords for each day and
+                    //compute deviation
+                    for(String day : days){
+                        LinkedList<PeptideRecord> dailyPeptideRecords = dayToRecordsMap.get(day);
+                        ExpIIPartialValidationDeviation deviation = computeDeviation(dailyPeptideRecords);
+                        deviation.setDay(day);
+                        deviation.setConcentrationLevel(concLevel);
+                        if(maxDeviationObject == null){
+                            //assign the first computation of Deviation to maxDeviationObject
+                            maxDeviationObject = deviation;                      
+                        }else if(maxDeviationObject.getDeviation() < deviation.getDeviation()){
+                            maxDeviationObject = deviation; 
+                        }
+                    }               
+                }            
+                subIdPartialValidation = new ExpIIPeptidePartialValidationOfSpecificity(maxDeviationObject);
+                  
+            }
+            subIdsToPartialValidationOfSpecMap.put(subId, subIdPartialValidation);
         }               
     }
 
