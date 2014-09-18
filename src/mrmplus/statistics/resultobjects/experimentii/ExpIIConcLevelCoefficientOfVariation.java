@@ -80,7 +80,7 @@ public class ExpIIConcLevelCoefficientOfVariation {
     private void computeIntraAssayCV(Logger logger) {
         // throw new UnsupportedOperationException("Not yet implemented");
         // described as average of CVs determined for each of the days.
-        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " intraAssay CV");
+        logger.print("               Setting " + concentrationLevel + " of " + transitionId + " intraAssay CV: ");
         Set<String> days = dayToCVMap.keySet();
         LinkedList<Double> coefs = new LinkedList<Double>();
         for(String day : days){
@@ -93,11 +93,12 @@ public class ExpIIConcLevelCoefficientOfVariation {
         //compute average
         Mean mean = new Mean();
         double average = mean.evaluate(values);
-        intraAssayCV = average;        
+        intraAssayCV = average;  
+        logger.println(String.valueOf(intraAssayCV));
     }
 
     private void computeInterAssayCV(Logger logger) {
-        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " interAssay CV");
+        logger.print("               Setting " + concentrationLevel + " of " + transitionId + " interAssay CV: ");
         // as described, this is calculated at each concentration by determining CV of first injection (i.e. replicate,
         // across the number of days, then the second injection, etc...
         // these CVs are averaged.
@@ -115,16 +116,18 @@ public class ExpIIConcLevelCoefficientOfVariation {
         //then, find the average of these...
         Mean mean = new Mean();
         double average = mean.evaluate(values);
-        interAssayCV = average;         
+        interAssayCV = average;    
+        logger.println(String.valueOf(interAssayCV));
     }
 
     private void computeTotalAssayCV(Logger logger) {
-        logger.println("               Setting " + concentrationLevel + " of " + transitionId + " totalAssay CV");
+        logger.print("               Setting " + concentrationLevel + " of " + transitionId + " totalAssay CV: ");
         //throw new UnsupportedOperationException("Not yet implemented");
         // described as the square-root of the sum of (the average intra-assay CV)^2 and 
         // (the average inter-assay CV)^2.
         // ((intraAssayCV)^2 + (interAssayCV)^2)^1/2;
         totalCV = Math.sqrt((Math.pow(intraAssayCV, 2) + Math.pow(interAssayCV, 2)));
+        logger.println(String.valueOf(totalCV));
     }
     
     

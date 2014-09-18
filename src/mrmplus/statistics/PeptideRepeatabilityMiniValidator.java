@@ -92,7 +92,7 @@ public class PeptideRepeatabilityMiniValidator {
                 */
             // get sequence mapped peptide records...
             LinkedList<PeptideRecord> sequenceMappedRecords = sequenceToMappedPeptideRecords.get(peptideSequence);
-            logger.println("     " + sequenceMappedRecords + " mapped input records found...");
+            logger.println("     " + sequenceMappedRecords.size() + " mapped input records found...");
             // ******************************************************************************** //
             //              Estimate Coefficient of variation(s) associated values              //
             // ******************************************************************************** //
@@ -143,6 +143,7 @@ public class PeptideRepeatabilityMiniValidator {
 
         }           
 
+        logger.close();
         return peptideRepeatabilityValidationResultMap;
     }
     
