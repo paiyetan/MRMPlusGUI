@@ -54,37 +54,44 @@ public class InputFileReader {
                 String[] lineContent = line.split("\t");
                 fileAttrIndeces = new FileAttributeIndex[lineContent.length];
                 // get the indeces for the reported attributes
+                System.out.print("  Found attributes: ");
                 for (int i = 0; i < lineContent.length; i++){
                     fileAttrIndeces[i] = new FileAttributeIndex((lineContent[i]),i); 
-                }               
+                    System.out.print(fileAttrIndeces[i].getAttribute() + "\t");
+                } 
+                System.out.print("\n");
+                
             }
             if(lines_read != 1){
-                rowIndex++;
-                if(rowIndex <= dataRows){
-                    String[] lineContent = line.split("\\t");
-                    String PeptideSequence = lineContent[getAttributeIndex(fileAttrIndeces,"PeptideSequence")];	
-                    String ReplicateName = lineContent[getAttributeIndex(fileAttrIndeces,"ReplicateName")];	
-                    int PrecursorCharge = Integer.parseInt(lineContent[getAttributeIndex(fileAttrIndeces,"PrecursorCharge")]);	
-                    int ProductCharge =  Integer.parseInt(lineContent[getAttributeIndex(fileAttrIndeces,"ProductCharge")]);	
-                    String FragmentIon = lineContent[getAttributeIndex(fileAttrIndeces,"FragmentIon")];	
-                    double lightPrecursorMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light PrecursorMz")]);	
-                    double lightProductMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light ProductMz")]);	
-                    double lightRetentionTime = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light RetentionTime")]);	
-                    double lightArea = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light Area")]);	
-                    double heavyPrecursorMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy PrecursorMz")]);	
-                    double heavyProductMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy ProductMz")]);	
-                    double heavyRetentionTime = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy RetentionTime")]);	
-                    double heavyArea = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy Area")]);
-                
-                    peptideRecords.add(new PeptideRecord(PeptideSequence, ReplicateName, PrecursorCharge,
-                                                            ProductCharge, FragmentIon, lightPrecursorMz, 
-                                                                lightProductMz, lightRetentionTime, lightArea,
-                                                                    heavyPrecursorMz, heavyProductMz, heavyRetentionTime,
-                                                                        heavyArea));
-                    if((rowIndex % 500) == 0){
-                        System.out.println("  " + rowIndex + " peptide records read...");
-                        logWriter.println("  " + rowIndex + " peptide records read...");
-                    }    
+                if(!line.equalsIgnoreCase("")){
+                    rowIndex++;
+                    //System.out.println("   " + rowIndex + ": " + line);
+                    if(rowIndex <= dataRows){
+                        String[] lineContent = line.split("\\t");
+                        String PeptideSequence = lineContent[getAttributeIndex(fileAttrIndeces,"PeptideSequence")];	
+                        String ReplicateName = lineContent[getAttributeIndex(fileAttrIndeces,"ReplicateName")];	
+                        int PrecursorCharge = Integer.parseInt(lineContent[getAttributeIndex(fileAttrIndeces,"PrecursorCharge")]);	
+                        int ProductCharge =  Integer.parseInt(lineContent[getAttributeIndex(fileAttrIndeces,"ProductCharge")]);	
+                        String FragmentIon = lineContent[getAttributeIndex(fileAttrIndeces,"FragmentIon")];	
+                        double lightPrecursorMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light PrecursorMz")]);	
+                        double lightProductMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light ProductMz")]);	
+                        double lightRetentionTime = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light RetentionTime")]);	
+                        double lightArea = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"light Area")]);	
+                        double heavyPrecursorMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy PrecursorMz")]);	
+                        double heavyProductMz = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy ProductMz")]);	
+                        double heavyRetentionTime = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy RetentionTime")]);	
+                        double heavyArea = Double.parseDouble(lineContent[getAttributeIndex(fileAttrIndeces,"heavy Area")]);
+
+                        peptideRecords.add(new PeptideRecord(PeptideSequence, ReplicateName, PrecursorCharge,
+                                                                ProductCharge, FragmentIon, lightPrecursorMz, 
+                                                                    lightProductMz, lightRetentionTime, lightArea,
+                                                                        heavyPrecursorMz, heavyProductMz, heavyRetentionTime,
+                                                                            heavyArea));
+                        if((rowIndex % 500) == 0){
+                            System.out.println("  " + rowIndex + " peptide records read...");
+                            logWriter.println("  " + rowIndex + " peptide records read...");
+                        }    
+                    }
                 }
             }
         }
